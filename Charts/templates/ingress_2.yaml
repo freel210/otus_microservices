@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kuber-ingress-2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: arch.homework
+      http:
+        paths:
+        - path: /health
+          pathType: Prefix
+          backend:
+            service:
+              name: demo-service
+              port:
+                number: 8000
+        - path: /swagger
+          pathType: Prefix
+          backend:
+            service:
+              name: demo-service
+              port:
+                number: 8000
+        - path: /user
+          pathType: Prefix
+          backend:
+            service:
+              name: demo-service
+              port:
+                number: 8000
+        - path: /users
+          pathType: Prefix
+          backend:
+            service:
+              name: demo-service
+              port:
+                number: 8000
