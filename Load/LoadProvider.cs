@@ -188,15 +188,21 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString());
         
+        string requestId = Guid.NewGuid().ToString();
+
         while (true)
         {
             HttpResponseMessage? response = null;
             try
             {
-                response = await _httpClient.PostAsync(
-                    "/user",
-                    JsonContent.Create(request, new MediaTypeHeaderValue("application/json")));
-                
+                HttpRequestMessage requestMessage = new(HttpMethod.Post, "/user")
+                {
+                    Content = JsonContent.Create(request, new MediaTypeHeaderValue("application/json"))
+                };
+                requestMessage.Headers.Add("X-Request-Id", requestId);   
+
+                response = await _httpClient.SendAsync(requestMessage);
+
                 response.EnsureSuccessStatusCode();
             }
             catch (Exception ex)

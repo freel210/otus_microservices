@@ -10,6 +10,7 @@ public sealed class UserDbContext : DbContext
     private readonly string _connectionString;
 
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<RequestId> RequestIds { get; set; } = null!;
 
     public UserDbContext(DbContextOptions<UserDbContext> options, IOptionsSnapshot<PostgresOptions> postgresOptions) : base(options)
     {

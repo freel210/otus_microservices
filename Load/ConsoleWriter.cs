@@ -15,8 +15,7 @@ internal static class ConsoleWriter
     {
         _timer.Elapsed += (sender, args) =>
         {
-            string? message;
-            while (_messages.TryDequeue(out message))
+            while (_messages.TryDequeue(out string? message))
             {
                 if (message != null)
                 {
