@@ -6,7 +6,7 @@ namespace Demo.Services;
 
 public interface IUserService
 {
-        Task<Guid> Add(Guid requestId, UserAddRequest request);
+        Task<UserResponse> Add(Guid requestId, UserAddRequest request);
         Task<UserResponse?> Get(Guid id);
         Task<IReadOnlyList<UserResponse>> GetAll();
         Task<UpdateResults> Update(UserUpdateRequest request);

@@ -12,7 +12,7 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
     private readonly UserDbContext _context = context;
     private readonly Random _random = new Random();
 
-    public async Task<Guid> Add(Guid requestId, UserAddRequest request)
+    public async Task<UserResponse> Add(Guid requestId, UserAddRequest request)
     {
         await ImitateDelay();
         ImitateError();
@@ -29,7 +29,7 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
             await _context.SaveChangesAsync();
         }
 
-        return user.Id;
+        return UserResponse.FromEntity(user);
     }
 
     public async Task<UserResponse?> Get(Guid id)
@@ -78,13 +78,15 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
             return UpdateResults.Conflict;
         }
 
-        var count = await _context.Users.Where(x => x.Id == request.Id)
+        var newVersionId = Guid.NewGuid();
+        var count = await _context.Users.Where(x => x.Id == request.Id && x.VersionId == request.VersionId)
             .ExecuteUpdateAsync(x => x
                 .SetProperty(user => user.UserName, user => request.UserName)
                 .SetProperty(user => user.FirstName, user => request.FirstName)
                 .SetProperty(user => user.LastName, user => request.LastName)
                 .SetProperty(user => user.Email, user => request.Email)
-                .SetProperty(user => user.Phone, user => request.Phone));
+                .SetProperty(user => user.Phone, user => request.Phone)
+                .SetProperty(user => user.VersionId, user => newVersionId));
 
         return count > 0 
             ? UpdateResults.Ok

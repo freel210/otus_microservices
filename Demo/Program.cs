@@ -59,9 +59,9 @@ app.MapPost("/user", async ([FromHeader(Name = "X-Request-Id")] Guid? requestId,
         return Results.BadRequest("Header X-Request-Id cannot be null");
     }
     
-    var id = await service.Add(requestId!.Value, request);
+    var response = await service.Add(requestId!.Value, request);
 
-    return Results.Created($"/user/{id}", request);
+    return Results.Created($"/user/{response.Id}", response);
 });
 
 app.MapGet("/user/{id}", async (Guid id, IUserService service) =>

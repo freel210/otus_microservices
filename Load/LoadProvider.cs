@@ -197,7 +197,6 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         while (true)
         {
             HttpResponseMessage? response = null;
-            UserResponse? userResponse = null;
             try
             {
                 HttpRequestMessage requestMessage = new(HttpMethod.Post, "/user")
@@ -211,7 +210,14 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
                 response.EnsureSuccessStatusCode();
 
                 var stream = await response.Content.ReadAsStreamAsync();
-                userResponse = JsonSerializer.Deserialize<UserResponse>(stream);
+                var userResponse = JsonSerializer.Deserialize<UserResponse>(stream, new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                });
+
+                string id = userResponse!.Id!.ToString()!;
+                string versionId = userResponse!.VersionId!.ToString()!;
+                return (id, versionId);
             }
             catch (Exception ex)
             {
@@ -227,13 +233,9 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
                 if (response != null)
                 {
                     WriteToConsole($"Create: {response.StatusCode}");
+                    response.Dispose();
                 }
             }
-
-            string id = response!.Headers.Location!.ToString().Split('/')[2];           
-            response.Dispose();    
-            
-            return (id, userResponse!.VersionId.ToString()!);
         }
     }
 
