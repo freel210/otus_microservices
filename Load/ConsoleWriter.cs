@@ -6,7 +6,7 @@ internal static class ConsoleWriter
     private static readonly ConcurrentQueue<string> _messages = new();
     private static readonly System.Timers.Timer _timer = new()
     {
-        Interval = 100,
+        Interval = 2000,
         AutoReset = true,
         Enabled = true,
     };

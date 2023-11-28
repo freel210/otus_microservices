@@ -1,5 +1,8 @@
-﻿using System.Net.Http.Headers;
+﻿using Load.DTO.Income;
+using Load.DTO.Outcome;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace Load;
 public class LoadProvider(int index, string baseUrl, CancellationToken token)
@@ -19,9 +22,9 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         {
             await ImitateDelay();
             
-            var id = await Create();
+            var (id, versionId) = await Create();
             await Get(id);
-            await Edit(id);
+            await Edit(id, versionId);
             await Delete(id);
         }
 
@@ -133,10 +136,11 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         }
     }
 
-    private async Task Edit(string id)
+    private async Task Edit(string id, string versionId)
     {
         UserUpdateRequest request = new(
             id,
+            versionId,
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
@@ -179,7 +183,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         }
     }
 
-    private async Task<string> Create()
+    private async Task<(string, string)> Create()
     {
         UserAddRequest request = new(
             Guid.NewGuid().ToString(),
@@ -193,6 +197,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         while (true)
         {
             HttpResponseMessage? response = null;
+            UserResponse? userResponse = null;
             try
             {
                 HttpRequestMessage requestMessage = new(HttpMethod.Post, "/user")
@@ -204,6 +209,9 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
                 response = await _httpClient.SendAsync(requestMessage);
 
                 response.EnsureSuccessStatusCode();
+
+                var stream = await response.Content.ReadAsStreamAsync();
+                userResponse = JsonSerializer.Deserialize<UserResponse>(stream);
             }
             catch (Exception ex)
             {
@@ -212,10 +220,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
                     WriteToConsole($"{ex.GetType()}: {ex.Message}");
                 }
 
-                if (ex is HttpRequestException)
-                {
-                    continue;
-                }
+                continue;
             }
             finally
             {
@@ -228,7 +233,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
             string id = response!.Headers.Location!.ToString().Split('/')[2];           
             response.Dispose();    
             
-            return id;
+            return (id, userResponse!.VersionId.ToString()!);
         }
     }
 

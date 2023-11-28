@@ -1,6 +1,7 @@
 ﻿using Demo.Contexts;
 using Demo.DTO.Income;
 using Demo.DTO.Outcome;
+using Demo.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Demo.Services;
@@ -11,16 +12,22 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
     private readonly UserDbContext _context = context;
     private readonly Random _random = new Random();
 
-    public async Task<Guid> Add(UserAddRequest request)
+    public async Task<Guid> Add(Guid requestId, UserAddRequest request)
     {
         await ImitateDelay();
         ImitateError();
 
-        var user = request.ToEntity();
-        user.Id = Guid.NewGuid();
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.CreateRequestId == requestId);
 
-        await _context.Users.AddAsync(user);
-        await _context.SaveChangesAsync();
+        if (user == null)
+        {
+            user = request.ToEntity(requestId);
+            user.Id = Guid.NewGuid();
+            user.VersionId = Guid.NewGuid();
+
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
+        }
 
         return user.Id;
     }
@@ -54,10 +61,22 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
         }
     }
 
-    public async Task<bool> Update(UserUpdateRequest request)
+    public async Task<UpdateResults> Update(UserUpdateRequest request)
     {
         await ImitateDelay();
         ImitateError();
+
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
+
+        if (user is null)
+        {
+            return UpdateResults.NotFound;
+        }
+
+        if (user.VersionId != request.VersionId)
+        {
+            return UpdateResults.Conflict;
+        }
 
         var count = await _context.Users.Where(x => x.Id == request.Id)
             .ExecuteUpdateAsync(x => x
@@ -67,7 +86,9 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
                 .SetProperty(user => user.Email, user => request.Email)
                 .SetProperty(user => user.Phone, user => request.Phone));
 
-        return (count > 0);
+        return count > 0 
+            ? UpdateResults.Ok
+            : UpdateResults.NotFound;
     }
 
     public async Task<bool> Delete(Guid id)

@@ -3,6 +3,9 @@ using Demo.Contexts;
 using Demo.DTO.Income;
 using Demo.Metrics;
 using Demo.Services;
+using Demo.Enums;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;
 
@@ -49,9 +52,14 @@ app.UseDeveloperExceptionPage();
 
 app.MapGet("/health/", () => TypedResults.Ok(new {status = "Ok"}));
 
-app.MapPost("/user", async (UserAddRequest request, IUserService service) =>
+app.MapPost("/user", async ([FromHeader(Name = "X-Request-Id")] Guid? requestId, UserAddRequest request, IUserService service) =>
 {
-    var id = await service.Add(request);
+    if (requestId == null)
+    {
+        return Results.BadRequest("Header X-Request-Id cannot be null");
+    }
+    
+    var id = await service.Add(requestId!.Value, request);
 
     return Results.Created($"/user/{id}", request);
 });
@@ -74,8 +82,15 @@ app.MapGet("/users", async (IUserService service, MetricsService metrics) =>
 
 app.MapPut("/user", async (UserUpdateRequest request, IUserService service) =>
 {
-    bool isUpdated = await service.Update(request);
-    return isUpdated ? Results.Ok() : Results.NotFound(request.Id);
+    var result = await service.Update(request);
+
+    return result switch
+    {
+        UpdateResults.Ok => Results.Ok(),
+        UpdateResults.NotFound => Results.NotFound(request.Id),
+        UpdateResults.Conflict => Results.Conflict(request.VersionId),
+        _ => throw new NotImplementedException(),
+    };
 });
 
 app.MapDelete("/user/{id}", async (Guid id, IUserService service) =>
