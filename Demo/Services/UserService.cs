@@ -14,8 +14,8 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
 
     public async Task<UserResponse> Add(Guid requestId, UserAddRequest request)
     {
-        await ImitateDelay();
-        ImitateError();
+        //await ImitateDelay();
+        //ImitateError();
 
         var user = await _context.Users.FirstOrDefaultAsync(x => x.CreateRequestId == requestId);
 
@@ -34,8 +34,8 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
 
     public async Task<UserResponse?> Get(Guid id)
     {
-        await ImitateDelay();
-        ImitateError();
+        //await ImitateDelay();
+        //ImitateError();
 
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
         return user is not null ? UserResponse.FromEntity(user) : null;
@@ -45,8 +45,8 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
     {
         try
         {
-            await ImitateDelay();
-            ImitateError();
+            //await ImitateDelay();
+            //ImitateError();
 
             var users = await _context.Users.ToArrayAsync();
 
@@ -63,8 +63,8 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
 
     public async Task<UpdateResults> Update(UserUpdateRequest request)
     {
-        await ImitateDelay();
-        ImitateError();
+        //await ImitateDelay();
+        //ImitateError();
 
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
 
@@ -95,8 +95,8 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
 
     public async Task<bool> Delete(Guid id)
     {
-        await ImitateDelay();
-        ImitateError();
+        //await ImitateDelay();
+        //ImitateError();
 
         var count = await _context.Users.Where(x => x.Id == id).ExecuteDeleteAsync();
         return (count > 0);

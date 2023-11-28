@@ -16,7 +16,7 @@ data:
       "PostgresOptions": {
         "Host": "pg-minikube-postgresql.default.svc.cluster.local",
         "Port": 5432,
-        "Database": "usersdb",
+        "Database": "usersdb2",
         "Pooling": true
       }
     }
