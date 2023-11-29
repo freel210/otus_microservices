@@ -1,0 +1,122 @@
+{
+	"info": {
+		"_postman_id": "89aa4476-0477-47d4-a191-45bb1680699a",
+		"name": "IdemTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17527646"
+	},
+	"item": [
+		{
+			"name": "Create user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"try {\r",
+							"    let responseData = pm.response.json();\r",
+							"    pm.collectionVariables.set(\"userId\", responseData.id);\r",
+							"} catch(e) {\r",
+							"    console.log(e);\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Status is created\", function () {\r",
+							"    pm.response.status == 201;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-Id",
+						"value": "191610d1-78ac-4020-a4e9-29f8fcf44b5d",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"Bob\",\r\n  \"firstName\": \"Robert\",\r\n  \"lastName\": \"Smith\",\r\n  \"email\": \"smith@gmail.com\",\r\n  \"phone\": \"111-111-111\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://arch.homework/user",
+					"protocol": "http",
+					"host": [
+						"arch",
+						"homework"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create user Copy",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is created\", function () {\r",
+							"    pm.response.status == 201;\r",
+							"});\r",
+							"\r",
+							"pm.test(\"New 'User' entity is not created\", function () {\r",
+							"    let responseData = pm.response.json();  \r",
+							"    responseData.id == pm.collectionVariables.get(\"userId\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Request-Id",
+						"value": "191610d1-78ac-4020-a4e9-29f8fcf44b5d",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userName\": \"Bob\",\r\n  \"firstName\": \"Robert\",\r\n  \"lastName\": \"Smith\",\r\n  \"email\": \"smith@gmail.com\",\r\n  \"phone\": \"111-111-111\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://arch.homework/user",
+					"protocol": "http",
+					"host": [
+						"arch",
+						"homework"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "userId",
+			"value": ""
+		}
+	]
+}
