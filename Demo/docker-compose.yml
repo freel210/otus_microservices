@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+
+  web:
+    container_name: 'demoapp'
+    image: 'demoapp'
+    environment:
+      DB_USER: "postgres"
+      DB_PASSWORD: "123465"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+     - "8000:8000"
+    depends_on:
+     - "postgres"
+    networks:
+      - demoapp-network
+
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_PASSWORD: "123465"
+    volumes:
+      - ./volumes/pg_data:/var/lib/postgresql/data
+    networks:
+      - demoapp-network
+
+networks:
+  demoapp-network:
+    driver: bridge

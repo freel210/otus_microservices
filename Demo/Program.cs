@@ -22,7 +22,7 @@ builder.Services.AddOpenTelemetry()
     .WithMetrics(x =>
     {
         x.AddPrometheusExporter();
-        //x.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "UserService");
+        x.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "UserService");
         //x.AddMeter("UserService");
         //x.AddInstrumentation(new MetricsService());
         x.AddUpTimeInstrumentation();
@@ -48,7 +48,7 @@ app.UseSwagger();
 app.UseSwaggerUI();
 app.UseDeveloperExceptionPage();
 
-//app.MapPrometheusScrapingEndpoint();
+app.MapPrometheusScrapingEndpoint();
 
 app.MapGet("/health/", () => TypedResults.Ok(new {status = "Ok"}));
 

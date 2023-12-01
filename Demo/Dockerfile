@@ -1,19 +1,16 @@
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /app
-EXPOSE 8000
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+WORKDIR /App
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["Demo.csproj", "Demo/"]
-RUN dotnet restore "Demo/Demo.csproj"
-COPY . .
-WORKDIR "/src/Demo"
-RUN dotnet build "Demo.csproj" -c Release -o /app/build
+# Copy everything
+COPY . ./
+# Restore as distinct layers
+RUN dotnet restore
+# Build and publish a release
+RUN dotnet publish -c Release -o out
 
-FROM build AS publish
-RUN dotnet publish "Demo.csproj" -c Release -o /app/publish /p:UseAppHost=false
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /App
+EXPOSE 8000 5432
+COPY --from=build-env /App/out .
 ENTRYPOINT ["dotnet", "Demo.dll"]

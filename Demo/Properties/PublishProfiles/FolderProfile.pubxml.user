@@ -4,8 +4,8 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 -->
 <Project>
   <PropertyGroup>
-    <_PublishTargetUrl>D:\Projects\Demo\Demo\bin\Release\net7.0\publish\</_PublishTargetUrl>
-    <History>True|2023-09-07T09:23:26.7386839Z;True|2023-09-07T12:21:39.8369719+03:00;True|2023-09-07T12:07:18.9346548+03:00;True|2023-09-07T12:02:13.9800377+03:00;False|2023-09-07T12:00:42.4468047+03:00;True|2023-09-07T11:54:54.1875032+03:00;</History>
+    <_PublishTargetUrl>D:\otus_microservices\Publish</_PublishTargetUrl>
+    <History>True|2023-11-30T13:27:46.3886537Z;False|2023-11-30T16:25:17.1481946+03:00;True|2023-09-07T12:23:26.7386839+03:00;True|2023-09-07T12:21:39.8369719+03:00;True|2023-09-07T12:07:18.9346548+03:00;True|2023-09-07T12:02:13.9800377+03:00;False|2023-09-07T12:00:42.4468047+03:00;True|2023-09-07T11:54:54.1875032+03:00;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>
