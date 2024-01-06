@@ -28,6 +28,24 @@ services:
     networks:
       - demoapp-network
 
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:v0.11.1
+    command: --log.level=debug
+    environment:
+      DATA_SOURCE_URI: "postgres:5432/grafana?sslmode=disable"
+      DATA_SOURCE_USER: grafana
+      DATA_SOURCE_PASS: e366311e-828a-4433-862e-0cc20bcf197c
+      PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
+    volumes:
+      - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+    ports:
+      - '9187:9187'
+    networks:
+      - demoapp-network
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
   prometheus:
     image: bitnami/prometheus:2.48.0-debian-11-r0
     container_name: prometheus
