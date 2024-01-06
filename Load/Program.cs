@@ -1,9 +1,9 @@
 ﻿using Load;
 
-var duration = (int)TimeSpan.FromSeconds(15).TotalMilliseconds;
+var duration = (int)TimeSpan.FromSeconds(45).TotalMilliseconds;
 CancellationTokenSource tokenSource = new (duration);
 
-await Task.WhenAll(Enumerable.Range(1, 100).Select(async x => 
+await Task.WhenAll(Enumerable.Range(1, 1).Select(async x => 
 {
     LoadProvider loadProvider = new(x, "http://localhost:8000", tokenSource.Token);
     await loadProvider.GenerateLoad();

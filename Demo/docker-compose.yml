@@ -8,6 +8,7 @@ services:
     environment:
       DB_USER: "postgres"
       DB_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,6 +27,62 @@ services:
       - ./volumes/pg_data:/var/lib/postgresql/data
     networks:
       - demoapp-network
+
+  prometheus:
+    image: bitnami/prometheus:2.48.0-debian-11-r0
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    command: "--config.file=/etc/prometheus/prometheus.yaml"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+      - ./volumes/prometheus_data:/prometheus
+    networks:
+      - demoapp-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2-ubuntu
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./volumes/grafana_data:/var/lib/grafana
+    networks:
+      - demoapp-network
+    restart: unless-stopped
+
+  # cadvisor:
+  #   image: gcr.io/cadvisor/cadvisor:v0.47.0     
+  #   container_name: cadvisor
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - /:/rootfs:ro
+  #     - /var/run:/var/run:ro
+  #     - /sys:/sys:ro
+  #     - /var/lib/docker/:/var/lib/docker:ro
+  #     - /dev/disk/:/dev/disk:ro
+  #   devices:
+  #     - /dev/kmsg
+  #   privileged: true
+  #   networks:
+  #     - demoapp-network
+  #   restart: unless-stopped
+
+  # node_exporter:
+  #   image: quay.io/prometheus/node-exporter:v1.5.0
+  #   container_name: node_exporter
+  #   command: "--path.rootfs=/host"
+  #   pid: host
+  #   restart: unless-stopped
+  #   networks:
+  #     - demoapp-network
+  #   volumes:
+  #     - /:/host:ro,rslave
 
 networks:
   demoapp-network:

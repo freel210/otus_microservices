@@ -167,6 +167,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
 
                 if (ex is HttpRequestException)
                 {
+                    WriteToConsole($"{ex.GetType()}: {ex.Message}");
                     continue;
                 }
             }
@@ -243,7 +244,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
 
     private async Task ImitateDelay()
     {
-        var value = _random.Next(1, 101);
+        var value = _random.Next(10, 101);
         await Task.Delay(value);
     }
 }

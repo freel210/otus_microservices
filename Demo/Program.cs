@@ -1,10 +1,8 @@
 using Demo.ConfigOptions;
 using Demo.Contexts;
 using Demo.DTO.Income;
-using Demo.Metrics;
 using Demo.Services;
 using Demo.Enums;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;
@@ -15,24 +13,8 @@ builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8000); });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<MetricsService>();
-
-builder.Services.AddOpenTelemetry()
-    .WithMetrics(x =>
-    {
-        x.AddPrometheusExporter();
-        x.AddMeter("Microsoft.AspNetCore.Hosting", "Microsoft.AspNetCore.Server.Kestrel", "UserService");
-        //x.AddMeter("UserService");
-        //x.AddInstrumentation(new MetricsService());
-        x.AddUpTimeInstrumentation();
-        x.AddView("request-duration",
-            new ExplicitBucketHistogramConfiguration
-            {
-                Boundaries = new double[] { 0, 0.005, 0.01, 0.025, 0.05, 0.07, 0.1, 0.25, 0.5, 0.7, 0.9, 0.95, 0.98, 0.99, 0.999, 1 }
-            });
-    });
-         
 
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -41,6 +23,20 @@ builder.Services.AddDbContext<UserDbContext>(options =>
     options.UseNpgsql();
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
+
+builder.Services.AddOpenTelemetry()
+    .WithMetrics(builder =>
+    {
+        builder.AddPrometheusExporter();
+
+        builder.AddMeter("Microsoft.AspNetCore.Hosting",
+                         "Microsoft.AspNetCore.Server.Kestrel");
+        builder.AddView("http.server.request.duration",
+            new ExplicitBucketHistogramConfiguration
+            {
+                Boundaries = new double[] { 0, 0.005, 0.01, 0.025, 0.05, 0.075, 0.1, 0.25, 0.5, 0.75, 1, 2.5, 5, 7.5, 10 }
+            });
+    });
 
 var app = builder.Build();
 
@@ -104,7 +100,5 @@ app.MapDelete("/user", async (IUserService service) =>
     await service.DeleteAll();
     return Results.NoContent();
 });
-
-app.UseOpenTelemetryPrometheusScrapingEndpoint("metrics");
 
 app.Run();
