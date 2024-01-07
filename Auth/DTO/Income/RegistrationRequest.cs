@@ -9,10 +9,5 @@ namespace Auth.DTO.Income
         
         [Required]
         public string? Password { get; set; }
-
-        public Entities.Auth ToEntity()
-        {
-            return new Entities.Auth();
-        }
     }
 }
