@@ -11,3 +11,5 @@
 /Demo/volumes
 /Demo/Demo.csproj.user
 /Demo/Demo.csproj.user~master
+/Auth/bin
+/Auth/obj
