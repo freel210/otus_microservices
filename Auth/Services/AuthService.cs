@@ -5,20 +5,17 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Auth.Services
 {
-    public class AuthService(IAuthRepository repository, IPasswordHasher<Entities.Auth> passwordHasher) : IAuthService
+    public class AuthService(IAuthRepository repository) : IAuthService
     {
         private readonly IAuthRepository _repository = repository;
-        private readonly IPasswordHasher<Entities.Auth> _passwordHasher = passwordHasher;
 
         public async Task<Guid> RegisterUser(RegistrationRequest request)
         {
             Entities.Auth auth = new()
             {
-                Login = request.Login
+                Login = request.Login,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password!)
             };
-
-            string passwordHash = _passwordHasher.HashPassword(auth, request.Password!);
-            auth.PasswordHash = passwordHash;
 
             var userId = await _repository.Add(auth);
             return userId;

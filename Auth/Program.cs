@@ -15,6 +15,11 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IAuthRepository, AuthRepository>();
 
+builder.Services.AddOptions<PrivateKeyOptions>().BindConfiguration("PrivateKeyOptions");
+builder.Services.AddSingleton<IPrivateKeyRepository, PrivateKeyRepository>();
+
+builder.Services.AddOptions<JwtServiceOptions>().BindConfiguration("JwtServiceOptions");
+
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<AuthDbContext>(options =>

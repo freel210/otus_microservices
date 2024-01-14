@@ -12,7 +12,7 @@ namespace Auth.Repositories
         {
             bool isExists = await _context.Auths.AnyAsync(x => x.Login == auth.Login);
 
-            if (auth != null)
+            if (isExists)
             {
                 throw new ArgumentOutOfRangeException(nameof(auth.Login));
             }

@@ -7,12 +7,12 @@ using System.Text.Json;
 namespace Load;
 public class LoadProvider(int index, string baseUrl, CancellationToken token)
 {
-    private readonly HttpClient _httpClient = new HttpClient()
+    private readonly HttpClient _httpClient = new()
     {
         BaseAddress = new Uri(baseUrl),
     };
 
-    private readonly Random _random = new Random();
+    private readonly Random _random = new();
     private readonly CancellationToken _token = token;
     private readonly int _index = index;
 

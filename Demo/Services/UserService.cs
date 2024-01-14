@@ -10,7 +10,7 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
 {
     private readonly MetricsService _metricsService = metricsService;
     private readonly UserDbContext _context = context;
-    private readonly Random _random = new Random();
+    private readonly Random _random = new();
 
     public async Task<UserResponse> Add(Guid requestId, UserAddRequest request)
     {
