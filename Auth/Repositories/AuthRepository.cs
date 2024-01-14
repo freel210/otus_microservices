@@ -24,5 +24,17 @@ namespace Auth.Repositories
 
             return auth!.UserId;
         }
+
+        public async Task<Entities.Auth> Get(string login)
+        {
+            var entity = await _context.Auths.FirstOrDefaultAsync(x => x.Login == login);
+
+            if (entity == null)
+            {
+                throw new KeyNotFoundException(nameof(login));
+            }
+
+            return entity;
+        }
     }
 }

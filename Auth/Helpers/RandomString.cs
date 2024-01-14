@@ -7,8 +7,8 @@ namespace Auth.Helpers
     {
         public static string NewMark(int length)
         {
-            Random random = new();
-            StringBuilder stringBuilder = new(length);
+            System.Random random = new System.Random();
+            StringBuilder stringBuilder = new StringBuilder(length);
             for (int i = 0; i < length; i++)
             {
                 stringBuilder.Append("0123456789"[random.Next("0123456789".Length)]);

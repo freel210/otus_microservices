@@ -1,10 +1,8 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Auth.ConfigOptions;
+using Auth.Helpers;
 using Auth.Repositories;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -44,7 +42,7 @@ public class JwtService : IJwtService
 
     public async Task<string> CreateRefreshToken(Guid id)
     {
-        var token = RandomString.NewToken(Defines.Jwt.RefreshTokenLength);
+        var token = RandomString.NewToken(32);
         return token;
     }
 }

@@ -1,3 +1,4 @@
+using API.Services;
 using Auth.ConfigOptions;
 using Auth.Contexts;
 using Auth.DTO.Income;
@@ -19,6 +20,7 @@ builder.Services.AddOptions<PrivateKeyOptions>().BindConfiguration("PrivateKeyOp
 builder.Services.AddSingleton<IPrivateKeyRepository, PrivateKeyRepository>();
 
 builder.Services.AddOptions<JwtServiceOptions>().BindConfiguration("JwtServiceOptions");
+builder.Services.AddSingleton<IJwtService, JwtService>();
 
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
@@ -44,6 +46,23 @@ app.MapPost("/register", async ([Required]RegistrationRequest? request, IAuthSer
     catch (ArgumentOutOfRangeException)
     {
         return Results.Conflict();
+    }
+});
+
+app.MapPost("/login", async ([Required] RegistrationRequest? request, IAuthService service) =>
+{
+    try
+    {
+        var tokens = await service.LoginUser(request!);
+        return Results.Ok(tokens);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return Results.Unauthorized();
+    }
+    catch (KeyNotFoundException)
+    {
+        return Results.NotFound();
     }
 });
 
