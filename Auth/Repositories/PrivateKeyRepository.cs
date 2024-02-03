@@ -26,13 +26,7 @@ namespace Auth.Repositories
             }
             else
             {
-                if (!TryReadBinaryKey(pemData, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----", out binaryKey))
-                {
-                    throw new ArgumentException("Invalid or unsupported private key PEM format");
-                }
-
-                PrivateKeyFormat = KeyFormats.Pkcs8;
-                array = binaryKey;
+                throw new ArgumentException("Invalid or unsupported private key PEM format");
             }
 
             RSA rSA = RSA.Create();

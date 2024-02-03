@@ -3,11 +3,6 @@
     "http": {
       "commandName": "Project",
       "applicationUrl": "http://localhost:8000"
-    },
-    "Docker": {
-      "commandName": "Docker",
-      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
-      "publishAllPorts": true
     }
   }
 }

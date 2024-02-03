@@ -6,12 +6,26 @@ using Demo.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OpenTelemetry.Metrics;
+using Microsoft.OpenApi.Models;
+using Demo.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(8000); });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+    AssemblyInfo.AssemblyName,
+    new OpenApiInfo
+    {
+        Title = $"{AssemblyInfo.ProgramNameVersion} manual",
+    });
+
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);
+
+    options.SupportNonNullableReferenceTypes();
+});
 
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<MetricsService>();
@@ -41,7 +55,11 @@ builder.Services.AddOpenTelemetry()
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint($"./{AssemblyInfo.AssemblyName}/swagger.json", AssemblyInfo.AssemblyName);
+    options.DocumentTitle = $"{AssemblyInfo.ProgramNameVersion} manual";
+});
 app.UseDeveloperExceptionPage();
 
 app.MapPrometheusScrapingEndpoint();

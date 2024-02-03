@@ -9,10 +9,4 @@ public class JwtServiceOptions
 
     [Range(1200, 3600)]
     public int RefreshTokenTTL { get; set; }
-
-    [Required]
-    public string? PrivateKey { get; set; }
-
-    [Required]
-    public string? PublicKey { get; set; }
 }

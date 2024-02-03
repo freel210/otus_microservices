@@ -1,11 +1,7 @@
-﻿
-using API.DTO.Outcome;
-using API.Services;
-using Auth.DTO.Income;
-using Auth.Helpers;
+﻿using Auth.DTO.Income;
+using Auth.DTO.Outcome;
 using Auth.Repositories;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Auth.Services
 {
@@ -50,9 +46,8 @@ namespace Auth.Services
         {
             return new JwtPayload
             {
-                { JwtRegisteredClaimNames.Jti, RandomString.NewMark(8) },
-                { JwtRegisteredClaimNames.Sub, userId.ToString() },
-                { JwtRegisteredClaimNames.Aud, "otus_microservices_auth" },
+                { JwtRegisteredClaimNames.NameId, userId.ToString() },
+                { JwtRegisteredClaimNames.Aud, "otus_microservices_aud" },
             };
         }
     }

@@ -1,8 +1,9 @@
 ﻿using Demo.Entities;
+using System.ComponentModel.DataAnnotations;
 
 namespace Demo.DTO.Income;
 
-public record UserAddRequest(string? UserName, string? FirstName, string? LastName, string? Email, string? Phone)
+public record UserAddRequest([Required] Guid? UserId, string? UserName, string? FirstName, string? LastName, string? Email, string? Phone)
 {
     public User ToEntity(Guid requestId)
     {

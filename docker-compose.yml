@@ -1,0 +1,95 @@
+version: '3.9'
+
+services:
+
+  web:
+    container_name: 'demo'
+    image: 'freel210/demo'
+    environment:
+      DB_USER: "postgres"
+      DB_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+    build:
+      context: ./Demo
+      dockerfile: Dockerfile
+    ports:
+     - "8000:8000"
+    depends_on:
+     - "postgres"
+
+  auth:
+    container_name: 'auth'
+    image: 'freel210/auth'
+    environment:
+      DB_AUTH_USER: "postgres"
+      DB_AUTH_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+    build:
+      context: ./Auth
+      dockerfile: Dockerfile
+    ports:
+     - "5068:5068"
+    depends_on:
+     - "postgres"
+
+  gateway:
+    container_name: 'gateway'
+    image: 'freel210/gateway'
+    environment:
+      ApiPointsOptions__AuthUrl: "http://auth:5068"
+      ApiPointsOptions__DemoUrl: "http://web:8000"
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    ports:
+     - "5168:5168"
+    depends_on:
+     - "web"
+     - "auth"
+
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_PASSWORD: "123465"
+    volumes:
+      - ./volumes/pg_data:/var/lib/postgresql/data
+
+  # postgres_exporter:
+  #   image: prometheuscommunity/postgres-exporter:v0.11.1
+  #   command: --log.level=debug
+  #   environment:
+  #     DATA_SOURCE_URI: "postgres:5432/grafana?sslmode=disable"
+  #     DATA_SOURCE_USER: grafana
+  #     DATA_SOURCE_PASS: e366311e-828a-4433-862e-0cc20bcf197c
+  #     PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
+  #   volumes:
+  #     - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+  #   ports:
+  #     - '9187:9187'
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres
+
+  prometheus:
+    image: bitnami/prometheus:2.48.0-debian-11-r0
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    command: "--config.file=/etc/prometheus/prometheus.yaml"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+      - ./volumes/prometheus_data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2-ubuntu
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./volumes/grafana_data:/var/lib/grafana
+    restart: unless-stopped
+

@@ -1,6 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 
-namespace API.Services;
+namespace Auth.Services;
 
 public interface IJwtService
 {

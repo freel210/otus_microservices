@@ -13,3 +13,6 @@
 /Demo/Demo.csproj.user~master
 /Auth/bin
 /Auth/obj
+/Gateway/bin
+/Gateway/obj
+/volumes

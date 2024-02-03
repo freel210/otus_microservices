@@ -1,20 +1,33 @@
-using API.Services;
 using Auth.ConfigOptions;
 using Auth.Contexts;
 using Auth.DTO.Income;
+using Auth.Helpers;
 using Auth.Repositories;
 using Auth.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5086); });
+builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5068); });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+    AssemblyInfo.AssemblyName,
+    new OpenApiInfo
+    {
+        Title = $"{AssemblyInfo.ProgramNameVersion} manual",
+    });
 
-builder.Services.AddSingleton<IAuthService, AuthService>();
-builder.Services.AddSingleton<IAuthRepository, AuthRepository>();
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);
+
+    options.SupportNonNullableReferenceTypes();
+});
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IAuthRepository, AuthRepository>();
 
 builder.Services.AddOptions<PrivateKeyOptions>().BindConfiguration("PrivateKeyOptions");
 builder.Services.AddSingleton<IPrivateKeyRepository, PrivateKeyRepository>();
@@ -33,7 +46,11 @@ builder.Services.AddDbContext<AuthDbContext>(options =>
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint($"./{AssemblyInfo.AssemblyName}/swagger.json", AssemblyInfo.AssemblyName);
+    options.DocumentTitle = $"{AssemblyInfo.ProgramNameVersion} manual";
+});
 app.UseDeveloperExceptionPage();
 
 app.MapPost("/register", async ([Required]RegistrationRequest? request, IAuthService service) =>

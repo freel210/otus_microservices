@@ -1,5 +1,5 @@
-﻿using API.DTO.Outcome;
-using Auth.DTO.Income;
+﻿using Auth.DTO.Income;
+using Auth.DTO.Outcome;
 
 namespace Auth.Services
 {

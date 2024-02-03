@@ -22,7 +22,7 @@ public class UserService(UserDbContext context, MetricsService metricsService) :
         if (user == null)
         {
             user = request.ToEntity(requestId);
-            user.Id = Guid.NewGuid();
+            user.Id = request.UserId!.Value;
             user.VersionId = Guid.NewGuid();
 
             await _context.Users.AddAsync(user);
