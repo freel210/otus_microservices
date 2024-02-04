@@ -1,4 +1,4 @@
 container:
-  image: freel210/demo3
+  image: f210/demo
 
 replicaCount: 2
