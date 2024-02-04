@@ -1,4 +1,6 @@
 container:
-  image: f210/demo
+  demoImage: f210/demo
+  authImage: f210/auth
+  gatewayImage: f210/gateway
 
 replicaCount: 2
