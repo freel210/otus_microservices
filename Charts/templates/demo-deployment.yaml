@@ -20,10 +20,10 @@ spec:
       volumes:
       - name: appsettings-volume
         configMap:
-          name: cm
+          name: demo-configmap
       containers:
       - name: demo
-        image: {{ .Values.container.image }}
+        image: {{ .Values.container.demoImage }}
         volumeMounts:
         - name: appsettings-volume
           mountPath: /app/appsettings.json
@@ -35,10 +35,10 @@ spec:
         - name: DB_USER
           valueFrom:
             secretKeyRef:
-              name: secret
+              name: demo-secret
               key: dbUser
         - name: DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: secret
+              name: demo-secret
               key: dbPassword
