@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Auth.DTO.Income
+namespace Authentication.DTO.Income
 {
     public class RefreshTokenCredentialRequest
     {

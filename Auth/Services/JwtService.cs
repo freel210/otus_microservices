@@ -1,12 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Auth.ConfigOptions;
-using Auth.Helpers;
-using Auth.Repositories;
+using Authentication.ConfigOptions;
+using Authentication.Helpers;
+using Authentication.Repositories;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Auth.Services;
+namespace Authentication.Services;
 
 public class JwtService : IJwtService
 {

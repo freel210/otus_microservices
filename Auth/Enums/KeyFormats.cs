@@ -1,4 +1,4 @@
-﻿namespace Auth.Enums
+﻿namespace Authentication.Enums
 {
     public enum KeyFormats
     {

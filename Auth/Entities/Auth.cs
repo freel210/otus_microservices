@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Auth.Entities;
+namespace Authentication.Entities;
 
 [PrimaryKey(nameof(UserId))]
 public class Auth

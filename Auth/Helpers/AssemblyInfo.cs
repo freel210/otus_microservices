@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Auth.Helpers;
+namespace Authentication.Helpers;
 
 public static class AssemblyInfo
 {

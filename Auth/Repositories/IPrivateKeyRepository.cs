@@ -1,6 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 
-namespace Auth.Repositories
+namespace Authentication.Repositories
 {
     public interface IPrivateKeyRepository
     {

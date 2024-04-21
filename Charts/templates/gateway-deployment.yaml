@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-deployment
+  labels:
+    app: gateway-deployment
+spec:
+  replicas: {{ .Values.replicaCount }}
+  minReadySeconds: 10
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+      - name: gateway
+        image: {{ .Values.container.gatewayImage }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 5168
+        env:
+        - name: ApiPointsOptions__AuthUrl
+          value: http://auth-service.default.svc.cluster.local:5068
+        - name: ApiPointsOptions__DemoUrl
+          value: http://demo-service.default.svc.cluster.local:8080
+

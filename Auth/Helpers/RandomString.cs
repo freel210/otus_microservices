@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Auth.Helpers
+namespace Authentication.Helpers
 {
     public static class RandomString
     {

@@ -1,14 +1,14 @@
-﻿
-using Auth.Contexts;
+﻿using Authentication.Contexts;
+using Authentication.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Auth.Repositories
+namespace Authentication.Repositories
 {
     public class AuthRepository(AuthDbContext context) : IAuthRepository
     {
         private readonly AuthDbContext _context = context;
 
-        public async Task<Guid> Add(Entities.Auth auth)
+        public async Task<Guid> Add(Auth auth)
         {
             bool isExists = await _context.Auths.AnyAsync(x => x.Login == auth.Login);
 
@@ -25,7 +25,7 @@ namespace Auth.Repositories
             return auth!.UserId;
         }
 
-        public async Task<Entities.Auth> Get(string login)
+        public async Task<Auth> Get(string login)
         {
             var entity = await _context.Auths.FirstOrDefaultAsync(x => x.Login == login);
 
@@ -35,6 +35,13 @@ namespace Auth.Repositories
             }
 
             return entity;
+        }
+
+        public async Task<IReadOnlyList<Auth>> GetAll()
+        {
+            var entities = await _context.Auths.ToArrayAsync();
+
+            return entities;
         }
     }
 }

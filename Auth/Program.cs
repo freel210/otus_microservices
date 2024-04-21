@@ -1,9 +1,9 @@
-using Auth.ConfigOptions;
-using Auth.Contexts;
-using Auth.DTO.Income;
-using Auth.Helpers;
-using Auth.Repositories;
-using Auth.Services;
+using Authentication.ConfigOptions;
+using Authentication.Contexts;
+using Authentication.DTO.Income;
+using Authentication.Helpers;
+using Authentication.Repositories;
+using Authentication.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.ComponentModel.DataAnnotations;
@@ -81,6 +81,12 @@ app.MapPost("/login", async ([Required] RegistrationRequest? request, IAuthServi
     {
         return Results.NotFound();
     }
+});
+
+app.MapGet("/auths", async (IAuthService service) =>
+{
+    var response = await service.GetAll();
+    return Results.Ok(response);
 });
 
 app.Run();

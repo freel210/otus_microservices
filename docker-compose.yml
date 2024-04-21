@@ -19,7 +19,7 @@ services:
 
   auth:
     container_name: 'auth'
-    image: 'f210/auth'
+    image: 'f210/auth:v2'
     environment:
       DB_AUTH_USER: "postgres"
       DB_AUTH_PASSWORD: "123465"

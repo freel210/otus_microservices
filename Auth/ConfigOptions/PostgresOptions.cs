@@ -1,4 +1,4 @@
-﻿namespace Auth.ConfigOptions;
+﻿namespace Authentication.ConfigOptions;
 
 public class PostgresOptions
 {

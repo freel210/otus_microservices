@@ -13,4 +13,4 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
 EXPOSE 5068 5432
 COPY --from=build-env /App/out .
-ENTRYPOINT ["dotnet", "Auth.dll"]
+ENTRYPOINT ["dotnet", "Authentication.dll"]

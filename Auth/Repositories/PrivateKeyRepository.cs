@@ -1,10 +1,10 @@
-﻿using Auth.ConfigOptions;
-using Auth.Enums;
+﻿using Authentication.ConfigOptions;
+using Authentication.Enums;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography;
 
-namespace Auth.Repositories
+namespace Authentication.Repositories
 {
     public class PrivateKeyRepository : IPrivateKeyRepository
     {

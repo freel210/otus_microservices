@@ -1,11 +1,12 @@
-﻿using Auth.DTO.Income;
-using Auth.DTO.Outcome;
+﻿using Authentication.DTO.Income;
+using Authentication.DTO.Outcome;
 
-namespace Auth.Services
+namespace Authentication.Services
 {
     public interface IAuthService
     {
         Task<Guid> RegisterUser(RegistrationRequest request);
         Task<TokensBundleResponse> LoginUser(RegistrationRequest request);
+        Task<IReadOnlyList<AuthItemResponse>> GetAll();
     }
 }

@@ -1,8 +1,8 @@
-﻿using Auth.ConfigOptions;
+﻿using Authentication.ConfigOptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace Auth.Contexts;
+namespace Authentication.Contexts;
 
 public sealed class AuthDbContext : DbContext
 {

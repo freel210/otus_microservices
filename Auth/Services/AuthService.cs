@@ -1,9 +1,9 @@
-﻿using Auth.DTO.Income;
-using Auth.DTO.Outcome;
-using Auth.Repositories;
+﻿using Authentication.DTO.Income;
+using Authentication.DTO.Outcome;
+using Authentication.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace Auth.Services
+namespace Authentication.Services
 {
     public class AuthService(IAuthRepository repository, IJwtService jwtService) : IAuthService
     {
@@ -40,6 +40,14 @@ namespace Auth.Services
                 AccessToken = jwtService.CreateAccessToken(payload),
                 RefreshToken = await jwtService.CreateRefreshToken(user.UserId),
             };
+        }
+
+        public async Task<IReadOnlyList<AuthItemResponse>> GetAll()
+        {
+            var entities = await _repository.GetAll();
+            var response = entities.Select(AuthItemResponse.FromEntity).ToArray();
+
+            return response;
         }
 
         private JwtPayload GetJwtPayload(Guid userId)

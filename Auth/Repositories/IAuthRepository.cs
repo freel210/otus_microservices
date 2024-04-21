@@ -1,8 +1,11 @@
-﻿namespace Auth.Repositories
+﻿using Authentication.Entities;
+
+namespace Authentication.Repositories
 {
     public interface IAuthRepository
     {
-        Task<Guid> Add(Entities.Auth auth);
-        Task<Entities.Auth> Get(string login);
+        Task<Guid> Add(Auth auth);
+        Task<Auth> Get(string login);
+        Task<IReadOnlyList<Auth>> GetAll();
     }
 }
