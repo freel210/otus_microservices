@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payments-service
+spec:
+  selector:
+    app: payments
+  ports:
+    - protocol: TCP
+      port: 5071
+      targetPort: 5071
+  type: LoadBalancer
