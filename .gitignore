@@ -16,3 +16,10 @@
 /Gateway/bin
 /Gateway/obj
 /volumes
+/Storage/obj
+/Storage/bin
+/Delivery/obj
+/Delivery/bin
+/PaymentsService/obj
+/PaymentsService/bin
+

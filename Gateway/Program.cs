@@ -1,11 +1,13 @@
 using Gateway.Authentication;
 using Gateway.ConfigOptions;
+using Gateway.Contexts;
 using Gateway.DTO.Income;
 using Gateway.Helpers;
 using Gateway.Repositories;
 using Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -62,6 +64,7 @@ builder.Services.AddSingleton<IPublicKeyRepository, PublicKeyRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, TokenValidatorPostConfigure>();
 builder.Services.AddScoped<JwtBearerEventsHandler>();
@@ -88,6 +91,14 @@ builder.Services.AddAuthentication(o =>
 });
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddDbContext<GatewayDbContext>(options =>
+{
+    options.UseNpgsql();
+    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
 
 var app = builder.Build();
 
@@ -159,6 +170,36 @@ app.MapGet("/user", [Authorize] async (HttpContext context, IUserService service
     Guid userId = new Guid(id);
 
     var response = await service.Get(userId);
+    return Results.Ok(response);
+});
+
+app.MapGet("/buy", [AllowAnonymous] async (IPurchaseService service) =>
+{
+    var result = await service.Buy();
+
+    if (result == true)
+    {
+        return Results.Ok();
+    }
+
+    return Results.Conflict();
+});
+
+app.MapGet("/buy-error", [AllowAnonymous] async (IPurchaseService service) =>
+{
+    var result = await service.BuyError();
+
+    if (result == true)
+    {
+        return Results.Ok();
+    }
+
+    return Results.Conflict();
+});
+
+app.MapGet("/transactions", async (GatewayDbContext context) =>
+{
+    var response = await context.Transactions.ToArrayAsync();
     return Results.Ok(response);
 });
 
