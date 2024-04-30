@@ -5,8 +5,8 @@ using Gateway.Entities;
 using Microsoft.Extensions.Options;
 using System.Text;
 using System.Text.Json;
-using DeliveryService.DTO.Income;
 using Microsoft.EntityFrameworkCore;
+using Gateway.DTO.Outcome;
 
 namespace Gateway.Services
 {

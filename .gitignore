@@ -4,22 +4,22 @@
 
 /.idea
 /.vs
-/Demo/bin
-/Demo/obj
+/UsersService/bin
+/UsersService/obj
 /Load/bin
 /Load/obj
-/Demo/volumes
-/Demo/Demo.csproj.user
-/Demo/Demo.csproj.user~master
-/Auth/bin
-/Auth/obj
+/UsersService/volumes
+/UsersService/UsersService.csproj.user
+/UsersService/UsersService.csproj.user~master
+/AuthenticationService/bin
+/AuthenticationService/obj
 /Gateway/bin
 /Gateway/obj
 /volumes
-/Storage/obj
-/Storage/bin
-/Delivery/obj
-/Delivery/bin
+/StorageService/obj
+/StorageService/bin
+/DeliveriesService/obj
+/DeliveriesService/bin
 /PaymentsService/obj
 /PaymentsService/bin
 

@@ -3,14 +3,14 @@ version: '3.9'
 services:
 
   web:
-    container_name: 'demo'
-    image: 'f210/demo:v10'
+    container_name: 'users'
+    image: 'f210/users:v20'
     environment:
       DB_USER: "postgres"
       DB_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
     build:
-      context: ./Demo
+      context: ./UsersService
       dockerfile: Dockerfile
     ports:
      - "8000:8000"
@@ -19,13 +19,13 @@ services:
 
   auth:
     container_name: 'auth'
-    image: 'f210/auth:v10'
+    image: 'f210/auth:v20'
     environment:
       DB_AUTH_USER: "postgres"
       DB_AUTH_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
     build:
-      context: ./Auth
+      context: ./AuthenticationService
       dockerfile: Dockerfile
     ports:
      - "5068:5068"
@@ -34,7 +34,7 @@ services:
 
   payments:
     container_name: 'payments'
-    image: 'f210/payments:v10'
+    image: 'f210/payments:v20'
     environment:
       DB_PAYMENTS_USER: "postgres"
       DB_PAYMENTS_PASSWORD: "123465"
@@ -50,14 +50,14 @@ services:
 
   storage:
     container_name: 'storage'
-    image: 'f210/storage:v10'
+    image: 'f210/storage:v20'
     environment:
       DB_STORAGE_USER: "postgres"
       DB_STORAGE_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
       PostgresOptions__Database: "storagedb2"
     build:
-      context: ./Storage
+      context: ./StorageService
       dockerfile: Dockerfile
     ports:
      - "5072:5072"
@@ -66,14 +66,14 @@ services:
 
   delivery:
     container_name: 'delivery'
-    image: 'f210/delivery:v10'
+    image: 'f210/delivery:v20'
     environment:
       DB_DELIVERY_USER: "postgres"
       DB_DELIVERY_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
       PostgresOptions__Database: "deliveriesdb2"
     build:
-      context: ./Delivery
+      context: ./DeliveriesService
       dockerfile: Dockerfile
     ports:
      - "5073:5073"
@@ -82,7 +82,7 @@ services:
 
   gateway:
     container_name: 'gateway'
-    image: 'f210/gateway:v10'
+    image: 'f210/gateway:v20'
     environment:
       DB_GATEWAY_USER: "postgres"
       DB_GATEWAY_PASSWORD: "123465"
