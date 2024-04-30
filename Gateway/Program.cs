@@ -65,6 +65,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
+builder.Services.AddScoped<IKafkaService, KafkaService>();
+builder.Services.AddScoped<IBillingService, BillingService>();
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, TokenValidatorPostConfigure>();
 builder.Services.AddScoped<JwtBearerEventsHandler>();
@@ -201,6 +203,23 @@ app.MapGet("/transactions", async (GatewayDbContext context) =>
 {
     var response = await context.Transactions.ToArrayAsync();
     return Results.Ok(response);
+});
+
+app.MapPost("/put-money", [Authorize] async (HttpContext context, PutMoneyRequest request, IBillingService service) =>
+{
+    var claims = context.User.Claims.ToList();
+
+    var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+    Guid userId = new Guid(id);
+
+    var result = await service.PutMoney(userId, request.Ammount);
+
+    if (result == true)
+    {
+        return Results.Ok();
+    }
+
+    return Results.Conflict();
 });
 
 app.Run();
