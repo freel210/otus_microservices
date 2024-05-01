@@ -169,7 +169,7 @@ services:
       DB_BILLING_USER: "postgres"
       DB_BILLING_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "billingdb2"
+      PostgresOptions__Database: "billingdb3"
     build:
       context: ./BillingService
       dockerfile: Dockerfile
@@ -192,6 +192,7 @@ services:
       ApiPointsOptions__PaymentsUrl: "http://payments:5071"
       ApiPointsOptions__StorageUrl: "http://storage:5072"
       ApiPointsOptions__DeliveryUrl: "http://delivery:5073"
+      ApiPointsOptions__BillingUrl: "http://billing:5076"
       KafkaBootstrap: "broker:29092"
     build:
       context: ./Gateway

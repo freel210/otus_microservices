@@ -18,4 +18,7 @@ public class ApiPointsOptions
     
     [Required]
     public string? DeliveryUrl { get; set; }
+
+    [Required]
+    public string? BillingUrl { get; set; }
 }

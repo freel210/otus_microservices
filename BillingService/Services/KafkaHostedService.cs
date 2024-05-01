@@ -1,7 +1,10 @@
 ﻿
+using BillingService.DTO.Income;
 using Confluent.Kafka;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
+using System;
 using System.Net;
+using System.Text.Json;
 using System.Threading;
 
 namespace BillingService.Services
@@ -12,8 +15,12 @@ namespace BillingService.Services
         private readonly string _putMoneyTopic = "put-money";
         private bool _canceled = false;
         private readonly ILogger<KafkaHostedService> _logger;
+        private readonly IAmountService _amountService;
 
-        public KafkaHostedService(IConfiguration configuration, ILogger<KafkaHostedService> logger)
+        public KafkaHostedService(
+            IConfiguration configuration,
+            ILogger<KafkaHostedService> logger,
+            IAmountService amountService)
         {
             _config = new ConsumerConfig
             {
@@ -25,13 +32,14 @@ namespace BillingService.Services
             };
 
             _logger = logger;
+            _amountService = amountService;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Consume(cancellationToken);
+            Task.Run(() => Consume(cancellationToken));
+            
             _logger.LogInformation($"{nameof(KafkaHostedService)} started");
-
             return Task.CompletedTask;
         }
 
@@ -63,6 +71,8 @@ namespace BillingService.Services
                                 if (consumeResult != null)
                                 {
                                     _logger.LogInformation($"{consumeResult.Message.Value}");
+                                    PutMoneyRequest request = JsonSerializer.Deserialize<PutMoneyRequest>(consumeResult.Message.Value);
+                                    await PutMoney(request.UserId, request.Amount);
                                 }
 
                                 await Task.Delay(100, cancellationToken);
@@ -83,6 +93,11 @@ namespace BillingService.Services
                     await Task.Delay(3000, cancellationToken);
                 }
             }
+        }
+
+        private async Task PutMoney(Guid userId, decimal some)
+        {
+            await _amountService.PutMoney(userId, some);
         }
     }
 }

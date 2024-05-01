@@ -11,6 +11,6 @@ RUN dotnet publish -c Release -o out
 # Build runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /App
-EXPOSE 5168 5068 8000 5432 29092
+EXPOSE 5168 5068 8000 5432 29092 5076
 COPY --from=build-env /App/out .
 ENTRYPOINT ["dotnet", "Gateway.dll"]

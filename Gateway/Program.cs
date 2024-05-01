@@ -222,4 +222,15 @@ app.MapPost("/put-money", [Authorize] async (HttpContext context, PutMoneyReques
     return Results.Conflict();
 });
 
+app.MapGet("/amount", [Authorize] async (HttpContext context, IBillingService service) =>
+{
+    var claims = context.User.Claims.ToList();
+
+    var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+    Guid userId = new Guid(id);
+
+    decimal total = await service.GetUserAmount(userId);
+    return Results.Ok(total);
+});
+
 app.Run();
