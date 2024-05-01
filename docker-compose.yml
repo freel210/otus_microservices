@@ -80,6 +80,22 @@ services:
     depends_on:
      - "postgres"
 
+  billing:
+    container_name: 'billing'
+    image: 'f210/billing:v20'
+    environment:
+      DB_BILLING_USER: "postgres"
+      DB_BILLING_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "billingdb2"
+    build:
+      context: ./BillingService
+      dockerfile: Dockerfile
+    ports:
+     - "5076:5076"
+    depends_on:
+     - "postgres"
+
   gateway:
     container_name: 'gateway'
     image: 'f210/gateway:v20'
@@ -106,6 +122,7 @@ services:
      - "payments"
      - "storage"
      - "delivery"
+     - "billing"
 
   postgres:
     image: postgres:13.3

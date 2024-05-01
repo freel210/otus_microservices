@@ -1,32 +1,43 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using BillingService.Helpers;
+using BillingService.ConfigOptions;
+using System.ComponentModel.DataAnnotations;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5076); });
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+    AssemblyInfo.AssemblyName,
+    new OpenApiInfo
+    {
+        Title = $"{AssemblyInfo.ProgramNameVersion} manual",
+    });
+
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);
+
+    options.SupportNonNullableReferenceTypes();
+});
+
+builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+//builder.Services.AddDbContext<PaymentDbContext>(options =>
+//{
+//    options.UseNpgsql();
+//    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+//});
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-var summaries = new[]
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    options.SwaggerEndpoint($"./{AssemblyInfo.AssemblyName}/swagger.json", AssemblyInfo.AssemblyName);
+    options.DocumentTitle = $"{AssemblyInfo.ProgramNameVersion} manual";
 });
+app.UseDeveloperExceptionPage();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
