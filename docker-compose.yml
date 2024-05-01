@@ -2,174 +2,6 @@ version: '3.9'
 
 services:
 
-  web:
-    container_name: 'users'
-    image: 'f210/users:v20'
-    environment:
-      DB_USER: "postgres"
-      DB_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-    build:
-      context: ./UsersService
-      dockerfile: Dockerfile
-    ports:
-     - "8000:8000"
-    depends_on:
-     - "postgres"
-
-  auth:
-    container_name: 'auth'
-    image: 'f210/auth:v20'
-    environment:
-      DB_AUTH_USER: "postgres"
-      DB_AUTH_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-    build:
-      context: ./AuthenticationService
-      dockerfile: Dockerfile
-    ports:
-     - "5068:5068"
-    depends_on:
-     - "postgres"
-
-  payments:
-    container_name: 'payments'
-    image: 'f210/payments:v20'
-    environment:
-      DB_PAYMENTS_USER: "postgres"
-      DB_PAYMENTS_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "paymentsdb2"
-    build:
-      context: ./PaymentsService
-      dockerfile: Dockerfile
-    ports:
-     - "5071:5071"
-    depends_on:
-     - "postgres"
-
-  storage:
-    container_name: 'storage'
-    image: 'f210/storage:v20'
-    environment:
-      DB_STORAGE_USER: "postgres"
-      DB_STORAGE_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "storagedb2"
-    build:
-      context: ./StorageService
-      dockerfile: Dockerfile
-    ports:
-     - "5072:5072"
-    depends_on:
-     - "postgres"
-
-  delivery:
-    container_name: 'delivery'
-    image: 'f210/delivery:v20'
-    environment:
-      DB_DELIVERY_USER: "postgres"
-      DB_DELIVERY_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "deliveriesdb2"
-    build:
-      context: ./DeliveriesService
-      dockerfile: Dockerfile
-    ports:
-     - "5073:5073"
-    depends_on:
-     - "postgres"
-
-  billing:
-    container_name: 'billing'
-    image: 'f210/billing:v20'
-    environment:
-      DB_BILLING_USER: "postgres"
-      DB_BILLING_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "billingdb2"
-    build:
-      context: ./BillingService
-      dockerfile: Dockerfile
-    ports:
-     - "5076:5076"
-    depends_on:
-     - "postgres"
-
-  gateway:
-    container_name: 'gateway'
-    image: 'f210/gateway:v20'
-    environment:
-      DB_GATEWAY_USER: "postgres"
-      DB_GATEWAY_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "gatewaydb2"
-      ApiPointsOptions__AuthUrl: "http://auth:5068"
-      ApiPointsOptions__DemoUrl: "http://web:8000"
-      ApiPointsOptions__PaymentsUrl: "http://payments:5071"
-      ApiPointsOptions__StorageUrl: "http://storage:5072"
-      ApiPointsOptions__DeliveryUrl: "http://delivery:5073"
-      KafkaBootstrap: "broker:29092"
-    build:
-      context: ./Gateway
-      dockerfile: Dockerfile
-    ports:
-     - "5168:5168"
-    depends_on:
-     - "web"
-     - "auth"
-     - "postgres"
-     - "payments"
-     - "storage"
-     - "delivery"
-     - "billing"
-
-  postgres:
-    image: postgres:13.3
-    environment:
-      POSTGRES_PASSWORD: "123465"
-    volumes:
-      - ./volumes/pg_data:/var/lib/postgresql/data
-
-  # postgres_exporter:
-  #   image: prometheuscommunity/postgres-exporter:v0.11.1
-  #   command: --log.level=debug
-  #   environment:
-  #     DATA_SOURCE_URI: "postgres:5432/grafana?sslmode=disable"
-  #     DATA_SOURCE_USER: grafana
-  #     DATA_SOURCE_PASS: e366311e-828a-4433-862e-0cc20bcf197c
-  #     PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
-  #   volumes:
-  #     - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
-  #   ports:
-  #     - '9187:9187'
-  #   restart: unless-stopped
-  #   depends_on:
-  #     - postgres
-
-  prometheus:
-    image: bitnami/prometheus:2.48.0-debian-11-r0
-    container_name: prometheus
-    ports:
-      - 9090:9090
-    command: "--config.file=/etc/prometheus/prometheus.yaml"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
-      - ./volumes/prometheus_data:/prometheus
-    restart: unless-stopped
-
-  grafana:
-    image: grafana/grafana:10.2.2-ubuntu
-    container_name: grafana
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    volumes:
-      - ./volumes/grafana_data:/var/lib/grafana
-    restart: unless-stopped
-
   zookeeper:
     image: confluentinc/cp-zookeeper:7.0.0
     hostname: zookeeper
@@ -197,7 +29,28 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: Kafka1:29092
+      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
 
+  init-kafka:
+    image: confluentinc/cp-kafka:7.0.0
+    depends_on:
+      - broker
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server broker:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic put-money --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic my-topic-2 --replication-factor 1 --partitions 1
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server broker:29092 --list
+      "
   kafdrop:
     container_name: kafdrop
     image: obsidiandynamics/kafdrop:latest
@@ -207,4 +60,173 @@ services:
       - 19000:9000
     environment:
       KAFKA_BROKERCONNECT: broker:29092
+  
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_PASSWORD: "123465"
+    volumes:
+      - ./volumes/pg_data:/var/lib/postgresql/data
 
+  # postgres_exporter:
+  #   image: prometheuscommunity/postgres-exporter:v0.11.1
+  #   command: --log.level=debug
+  #   environment:
+  #     DATA_SOURCE_URI: "postgres:5432/grafana?sslmode=disable"
+  #     DATA_SOURCE_USER: grafana
+  #     DATA_SOURCE_PASS: e366311e-828a-4433-862e-0cc20bcf197c
+  #     PG_EXPORTER_EXTEND_QUERY_PATH: "/etc/postgres_exporter/queries.yaml"
+  #   volumes:
+  #     - ./queries.yaml:/etc/postgres_exporter/queries.yaml:ro
+  #   ports:
+  #     - '9187:9187'
+  #   restart: unless-stopped
+  #   depends_on:
+  #     - postgres
+
+  web:
+    container_name: 'users'
+    image: 'f210/users:v20'
+    environment:
+      DB_USER: "postgres"
+      DB_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+    build:
+      context: ./UsersService
+      dockerfile: Dockerfile
+    ports:
+     - "8000:8000"
+    depends_on:
+     - postgres
+
+  auth:
+    container_name: 'auth'
+    image: 'f210/auth:v20'
+    environment:
+      DB_AUTH_USER: "postgres"
+      DB_AUTH_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+    build:
+      context: ./AuthenticationService
+      dockerfile: Dockerfile
+    ports:
+     - "5068:5068"
+    depends_on:
+     - postgres
+
+  payments:
+    container_name: 'payments'
+    image: 'f210/payments:v20'
+    environment:
+      DB_PAYMENTS_USER: "postgres"
+      DB_PAYMENTS_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "paymentsdb2"
+    build:
+      context: ./PaymentsService
+      dockerfile: Dockerfile
+    ports:
+     - "5071:5071"
+    depends_on:
+     - postgres
+
+  storage:
+    container_name: 'storage'
+    image: 'f210/storage:v20'
+    environment:
+      DB_STORAGE_USER: "postgres"
+      DB_STORAGE_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "storagedb2"
+    build:
+      context: ./StorageService
+      dockerfile: Dockerfile
+    ports:
+     - "5072:5072"
+    depends_on:
+     - postgres
+
+  delivery:
+    container_name: 'delivery'
+    image: 'f210/delivery:v20'
+    environment:
+      DB_DELIVERY_USER: "postgres"
+      DB_DELIVERY_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "deliveriesdb2"
+    build:
+      context: ./DeliveriesService
+      dockerfile: Dockerfile
+    ports:
+     - "5073:5073"
+    depends_on:
+     - postgres
+
+  billing:
+    container_name: 'billing'
+    image: 'f210/billing:v20'
+    environment:
+      DB_BILLING_USER: "postgres"
+      DB_BILLING_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "billingdb2"
+    build:
+      context: ./BillingService
+      dockerfile: Dockerfile
+    ports:
+     - "5076:5076"
+    depends_on:
+     - postgres
+     - init-kafka
+
+  gateway:
+    container_name: 'gateway'
+    image: 'f210/gateway:v20'
+    environment:
+      DB_GATEWAY_USER: "postgres"
+      DB_GATEWAY_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "gatewaydb2"
+      ApiPointsOptions__AuthUrl: "http://auth:5068"
+      ApiPointsOptions__DemoUrl: "http://web:8000"
+      ApiPointsOptions__PaymentsUrl: "http://payments:5071"
+      ApiPointsOptions__StorageUrl: "http://storage:5072"
+      ApiPointsOptions__DeliveryUrl: "http://delivery:5073"
+      KafkaBootstrap: "broker:29092"
+    build:
+      context: ./Gateway
+      dockerfile: Dockerfile
+    ports:
+     - "5168:5168"
+    depends_on:
+     - web
+     - auth
+     - postgres
+     - payments
+     - storage
+     - delivery
+     - billing
+     - init-kafka
+
+  prometheus:
+    image: bitnami/prometheus:2.48.0-debian-11-r0
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    command: "--config.file=/etc/prometheus/prometheus.yaml"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yaml
+      - ./volumes/prometheus_data:/prometheus
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.2.2-ubuntu
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    volumes:
+      - ./volumes/grafana_data:/var/lib/grafana
+    restart: unless-stopped

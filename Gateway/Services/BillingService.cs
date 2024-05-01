@@ -8,6 +8,7 @@ namespace Gateway.Services
     public class BillingService : IBillingService
     {
         private readonly IKafkaService _kafkaService;
+        private readonly string _putMoneyTopic = "put-money";
 
         public BillingService(IKafkaService kafkaService)
         {
@@ -19,7 +20,7 @@ namespace Gateway.Services
             string id = Guid.NewGuid().ToString();
             string message = JsonSerializer.Serialize(new {id, userId, amount });
             
-            return await _kafkaService.Publish("put-money", message);
+            return await _kafkaService.Publish(_putMoneyTopic, message);
         }
     }
 }

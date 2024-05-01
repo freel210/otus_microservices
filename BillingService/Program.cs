@@ -3,6 +3,7 @@ using Microsoft.OpenApi.Models;
 using BillingService.Helpers;
 using BillingService.ConfigOptions;
 using System.ComponentModel.DataAnnotations;
+using BillingService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5076); });
@@ -29,6 +30,9 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 //    options.UseNpgsql();
 //    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 //});
+
+//builder.Services.AddSingleton<IKafkaHostedService, KafkaHostedService>();
+builder.Services.AddHostedService<KafkaHostedService>();
 
 var app = builder.Build();
 
