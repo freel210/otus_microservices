@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace Gateway.Services
+﻿namespace Gateway.Services
 {
     public interface IKafkaService
     {

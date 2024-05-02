@@ -1,8 +1,5 @@
-﻿
-using Confluent.Kafka;
-using Gateway.ConfigOptions;
+﻿using Gateway.ConfigOptions;
 using Microsoft.Extensions.Options;
-using System;
 using System.Text.Json;
 
 namespace Gateway.Services

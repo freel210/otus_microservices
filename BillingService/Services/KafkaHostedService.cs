@@ -1,21 +1,22 @@
 ﻿
 using BillingService.DTO.Income;
 using Confluent.Kafka;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System;
 using System.Net;
 using System.Text.Json;
-using System.Threading;
 
 namespace BillingService.Services
 {
     public class KafkaHostedService : IKafkaHostedService
     {
         private readonly ConsumerConfig _config;
+
         private readonly string _putMoneyTopic = "put-money";
-        private bool _canceled = false;
+        private readonly string _userCreatedTopic = "user-created";
+        
         private readonly ILogger<KafkaHostedService> _logger;
         private readonly IAmountService _amountService;
+
+        private bool _canceled = false;
 
         public KafkaHostedService(
             IConfiguration configuration,
@@ -37,7 +38,8 @@ namespace BillingService.Services
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(() => Consume(cancellationToken));
+            Task.Run(() => ConsumePutMoneyTopik(cancellationToken));
+            Task.Run(() => ConsumeUserCreatedTopik(cancellationToken));
             
             _logger.LogInformation($"{nameof(KafkaHostedService)} started");
             return Task.CompletedTask;
@@ -49,7 +51,7 @@ namespace BillingService.Services
             await Task.CompletedTask;
         }
 
-        private async Task Consume(CancellationToken cancellationToken)
+        private async Task ConsumePutMoneyTopik(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Starting consume {_putMoneyTopic}");
 
@@ -79,7 +81,7 @@ namespace BillingService.Services
                             }
                             catch (Exception ex)
                             {
-                                _logger.LogError(ex, "Consuming error");
+                                _logger.LogError(ex, $"Consuming {_putMoneyTopic} error");
                                 await Task.Delay(100, cancellationToken);
                             }
                         }
@@ -89,7 +91,53 @@ namespace BillingService.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Subscribing error");
+                    _logger.LogError(ex, $"Subscribing {_putMoneyTopic} error");
+                    await Task.Delay(3000, cancellationToken);
+                }
+            }
+        }
+
+        private async Task ConsumeUserCreatedTopik(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation($"Starting consume {_userCreatedTopic}");
+
+            while (!_canceled || !cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    using (var consumer = new ConsumerBuilder<Ignore, string>(_config).Build())
+                    {
+                        consumer.Subscribe(_userCreatedTopic);
+                        _logger.LogInformation($"Topic {_userCreatedTopic} subscribed");
+
+                        while (!_canceled || !cancellationToken.IsCancellationRequested)
+                        {
+                            try
+                            {
+                                var consumeResult = consumer.Consume(cancellationToken);
+
+                                if (consumeResult != null)
+                                {
+                                    _logger.LogInformation($"{consumeResult.Message.Value}");
+                                    UserCreatedRequest request = JsonSerializer.Deserialize<UserCreatedRequest>(consumeResult.Message.Value);
+                                    await CreateAccount(request.UserId);
+                                }
+
+                                await Task.Delay(100, cancellationToken);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Consuming {_userCreatedTopic} error");
+                                await Task.Delay(100, cancellationToken);
+                            }
+                        }
+
+                        consumer.Close();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"Subscribing {_putMoneyTopic} error");
                     await Task.Delay(3000, cancellationToken);
                 }
             }
@@ -98,6 +146,11 @@ namespace BillingService.Services
         private async Task PutMoney(Guid userId, decimal some)
         {
             await _amountService.PutMoney(userId, some);
+        }
+
+        private async Task CreateAccount(Guid userId)
+        {
+            await _amountService.CreateAccount(userId);
         }
     }
 }

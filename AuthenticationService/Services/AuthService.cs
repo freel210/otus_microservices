@@ -12,7 +12,7 @@ namespace AuthenticationService.Services
 
         public async Task<Guid> RegisterUser(RegistrationRequest request)
         {
-            AuthenticationService.Entities.Auth auth = new()
+            Entities.Auth auth = new()
             {
                 Login = request.Login,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password!)

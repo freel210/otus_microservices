@@ -9,13 +9,19 @@ using System.Net;
 
 namespace Gateway.Services
 {
-    public class AuthService(IHttpClientFactory httpClientFactory, IOptions<ApiPointsOptions> options) : IAuthService
+    public class AuthService(
+        IHttpClientFactory httpClientFactory,
+        IOptions<ApiPointsOptions> options,
+        IKafkaService kafkaService) : IAuthService
     {
         private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
-        
+
+        private readonly IKafkaService _kafkaService = kafkaService;
+        private readonly string _userCreatedTopic = "user-created";
+
         private readonly string _authServiceUrl = options.Value.AuthUrl!;
         private readonly string _demoServiceUrl = options.Value.DemoUrl!;
-        
+
         private readonly JsonSerializerOptions JsonSerializerOptions = new()
         {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -37,6 +43,13 @@ namespace Gateway.Services
                     var stream = await response.Content.ReadAsStreamAsync();
                     var userResponse = JsonSerializer.Deserialize<RegisterResponse>(stream, JsonSerializerOptions);
                     await CreateUser(userResponse!.UserId!.Value);
+
+                    string message = JsonSerializer.Serialize(new 
+                    { 
+                        d = Guid.NewGuid().ToString(),
+                        UserId = userResponse!.UserId!.Value 
+                    });
+                    await _kafkaService.Publish(_userCreatedTopic, message);
 
                     break;
 

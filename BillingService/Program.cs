@@ -2,10 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using BillingService.Helpers;
 using BillingService.ConfigOptions;
-using System.ComponentModel.DataAnnotations;
 using BillingService.Services;
 using BillingService.Contexts;
-using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5076); });
@@ -26,7 +24,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
-builder.Services.AddTransient<IAmountService, AmountService>();
+builder.Services.AddSingleton<IAmountService, AmountService>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<BillingDbContext>(options =>
 {

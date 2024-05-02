@@ -16,8 +16,9 @@ namespace BillingService.Services
             _logger = logger;
         }
 
-        public async Task<bool> PutMoney(Guid userId, decimal some)
+        public async Task<bool> CreateAccount(Guid userId)
         {
+            using var transaction = _context.Database.BeginTransaction();
             try
             {
                 var amount = await _context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
@@ -27,38 +28,67 @@ namespace BillingService.Services
                     Amount newAmount = new()
                     {
                         UserId = userId,
-                        Total = some,
+                        Total = 0,
                     };
 
                     await _context.Amounts.AddAsync(newAmount);
                     await _context.SaveChangesAsync();
 
-                    _context.Entry(amount).State = EntityState.Detached;
+                    await transaction.CommitAsync();
                     return true;
+                }
+
+                await transaction.CommitAsync();
+                return false;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Put money error");
+
+                await transaction.RollbackAsync();
+                return false;
+            }
+        }
+
+        public async Task<bool> PutMoney(Guid userId, decimal some)
+        {
+            using var transaction = _context.Database.BeginTransaction();
+            try
+            {
+                var amount = await _context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
+
+                if (amount == null)
+                {
+                    await transaction.CommitAsync();
+                    return false;
                 }
 
                 amount.Total += some;
                 _context.Amounts.Update(amount);
                 await _context.SaveChangesAsync();
 
-                _context.Entry(amount).State = EntityState.Detached;
+                await transaction.CommitAsync();
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Put money error");
+
+                await transaction.RollbackAsync();
                 return false;
             }
         }
 
         public async Task<bool> WriteoutMoney(Guid userId, decimal some)
         {
+            using var transaction = _context.Database.BeginTransaction();
             try
             {
                 var amount = await _context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
 
                 if (amount == null || amount.Total < some)
                 {
+                    await transaction.CommitAsync();
                     return false;
                 }
 
@@ -66,27 +96,39 @@ namespace BillingService.Services
                 _context.Amounts.Update(amount);
                 await _context.SaveChangesAsync();
 
-                _context.Entry(amount).State = EntityState.Detached;
+                await transaction.CommitAsync();
                 return true;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Write out money error");
+                
+                await transaction.RollbackAsync();
                 return false;
             }
         }
 
         public async Task<decimal> GetUserAmount(Guid userId)
         {
-            var amount = await _context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
-
-            if (amount == null)
+            using var transaction = _context.Database.BeginTransaction();
+           
+            try
             {
-                return 0;
-            }
+                var amount = await _context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
+                if (amount == null)
+                {
+                    await transaction.CommitAsync();
+                    return 0;
+                }
 
-            _context.Entry(amount).State = EntityState.Detached;
-            return amount.Total;
+                await transaction.CommitAsync();
+                return amount.Total;
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
     }
 }
