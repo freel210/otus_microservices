@@ -1,6 +1,6 @@
-﻿namespace BillingService.Services
+﻿namespace BillingService.Repositories
 {
-    public interface IAmountService
+    public interface IAmountRepository
     {
         Task<bool> CreateAccount(Guid userId);
         Task<bool> PutMoney(Guid userId, decimal some);

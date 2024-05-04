@@ -1,27 +1,27 @@
-﻿
-using BillingService.DTO.Income;
+﻿using BillingService.DTO.Income;
+using BillingService.Repositories;
 using Confluent.Kafka;
 using System.Net;
 using System.Text.Json;
 
-namespace BillingService.Services
+namespace BillingService.HostedServices
 {
-    public class KafkaHostedService : IKafkaHostedService
+    public class KafkaHostedService : IHostedService
     {
         private readonly ConsumerConfig _config;
 
         private readonly string _putMoneyTopic = "put-money";
         private readonly string _userCreatedTopic = "user-created";
-        
+
         private readonly ILogger<KafkaHostedService> _logger;
-        private readonly IAmountService _amountService;
+        private readonly IAmountRepository _amountService;
 
         private bool _canceled = false;
 
         public KafkaHostedService(
             IConfiguration configuration,
             ILogger<KafkaHostedService> logger,
-            IAmountService amountService)
+            IAmountRepository amountService)
         {
             _config = new ConsumerConfig
             {
@@ -40,14 +40,14 @@ namespace BillingService.Services
         {
             Task.Run(() => ConsumePutMoneyTopik(cancellationToken));
             Task.Run(() => ConsumeUserCreatedTopik(cancellationToken));
-            
+
             _logger.LogInformation($"{nameof(KafkaHostedService)} started");
             return Task.CompletedTask;
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _canceled = true;           
+            _canceled = true;
             await Task.CompletedTask;
         }
 

@@ -2,8 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using BillingService.Helpers;
 using BillingService.ConfigOptions;
-using BillingService.Services;
 using BillingService.Contexts;
+using BillingService.Repositories;
+using BillingService.HostedServices;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5076); });
@@ -24,7 +25,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
-builder.Services.AddSingleton<IAmountService, AmountService>();
+builder.Services.AddSingleton<IAmountRepository, AmountRepository>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<BillingDbContext>(options =>
 {
@@ -44,7 +45,7 @@ app.UseSwaggerUI(options =>
 });
 app.UseDeveloperExceptionPage();
 
-app.MapGet("/amount/{userId}", async (Guid userId, HttpContext context, IAmountService service) =>
+app.MapGet("/amount/{userId}", async (Guid userId, HttpContext context, IAmountRepository service) =>
 {
     decimal total = await service.GetUserAmount(userId);
     return Results.Ok(total);

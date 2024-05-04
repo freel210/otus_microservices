@@ -179,6 +179,23 @@ services:
      - postgres
      - init-kafka
 
+  orders:
+    container_name: 'orders'
+    image: 'f210/orders:v20'
+    environment:
+      DB_ORDERS_USER: "postgres"
+      DB_ORDERS_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "ordersdb3"
+    build:
+      context: ./OrdersService
+      dockerfile: Dockerfile
+    ports:
+     - "5074:5074"
+    depends_on:
+     - postgres
+     - init-kafka
+
   gateway:
     container_name: 'gateway'
     image: 'f210/gateway:v20'
@@ -208,6 +225,7 @@ services:
      - delivery
      - billing
      - init-kafka
+     - orders
 
   prometheus:
     image: bitnami/prometheus:2.48.0-debian-11-r0

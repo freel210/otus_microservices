@@ -64,9 +64,9 @@ builder.Services.AddSingleton<IPublicKeyRepository, PublicKeyRepository>();
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<IAuthService, AuthService>();
-builder.Services.AddScoped<IPurchaseService, PurchaseService>();
-builder.Services.AddScoped<IKafkaService, KafkaService>();
-builder.Services.AddScoped<IBillingService, BillingService>();
+builder.Services.AddSingleton<IPurchaseService, PurchaseService>();
+builder.Services.AddSingleton<IKafkaService, KafkaService>();
+builder.Services.AddSingleton<IBillingService, BillingService>();
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, TokenValidatorPostConfigure>();
 builder.Services.AddScoped<JwtBearerEventsHandler>();
