@@ -6,6 +6,5 @@ namespace StorageService.Entities;
 public class Item
 {
     public Guid Id { get; set; }
-    public Guid Tid { get; set; }
-    public bool Status { get; set; }
+    public int Quantity { get; set; }
 }
