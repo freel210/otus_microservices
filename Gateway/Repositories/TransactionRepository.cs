@@ -4,16 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Gateway.Repositories;
 
-public class TransactionRepository : ITransactionRepository
+public class TransactionRepository(ILogger<TransactionRepository> logger, IServiceScopeFactory scopeFactory) : ITransactionRepository
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<TransactionRepository> _logger;
-
-    public TransactionRepository(ILogger<TransactionRepository> logger, IServiceScopeFactory scopeFactory)
-    {
-        _logger = logger;
-        _scopeFactory = scopeFactory;
-    }
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly ILogger<TransactionRepository> _logger = logger;
 
     public async Task<Guid> AddTransaction()
     {

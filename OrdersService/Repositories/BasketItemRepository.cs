@@ -4,16 +4,10 @@ using OrdersService.Entities;
 
 namespace OrdersService.Repositories;
 
-public class BasketItemRepository : IBasketItemRepository
+public class BasketItemRepository(ILogger<BasketItemRepository> logger, IServiceScopeFactory scopeFactory) : IBasketItemRepository
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<BasketItemRepository> _logger;
-
-    public BasketItemRepository(ILogger<BasketItemRepository> logger, IServiceScopeFactory scopeFactory)
-    {
-        _logger = logger;
-        _scopeFactory = scopeFactory;
-    }
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly ILogger<BasketItemRepository> _logger = logger;
 
     public async Task<bool> Add(Guid userId)
     {

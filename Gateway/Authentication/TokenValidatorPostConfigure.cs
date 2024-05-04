@@ -4,14 +4,9 @@ using Microsoft.Extensions.Options;
 
 namespace Gateway.Authentication;
 
-public class TokenValidatorPostConfigure : IPostConfigureOptions<JwtBearerOptions>
+public class TokenValidatorPostConfigure(IPublicKeyRepository publicKeyRepository) : IPostConfigureOptions<JwtBearerOptions>
 {
-    private readonly IPublicKeyRepository publicKeyRepository;
-
-    public TokenValidatorPostConfigure(IPublicKeyRepository publicKeyRepository)
-    {
-        this.publicKeyRepository = publicKeyRepository;
-    }
+    private readonly IPublicKeyRepository publicKeyRepository = publicKeyRepository;
 
     public void PostConfigure(string name, JwtBearerOptions options)
     {

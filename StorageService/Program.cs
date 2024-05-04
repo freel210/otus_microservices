@@ -5,6 +5,7 @@ using StorageService.Contexts;
 using StorageService.DTO.Income;
 using StorageService.Entities;
 using StorageService.Helpers;
+using StorageService.Repositoreis;
 using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,8 @@ builder.Services.AddDbContext<StorageDbContext>(options =>
     options.UseNpgsql();
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
+
+builder.Services.AddSingleton<IStorageRepository, StorageRepository>(); 
 
 var app = builder.Build();
 

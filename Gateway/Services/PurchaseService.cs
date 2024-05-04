@@ -9,32 +9,20 @@ using Gateway.DTO.Income;
 
 namespace Gateway.Services;
 
-public class PurchaseService : IPurchaseService
+public class PurchaseService(
+    ITransactionRepository repository,
+    IHttpClientFactory factory,
+    IOptions<ApiPointsOptions> options,
+    ILogger<PurchaseService> logger) : IPurchaseService
 {
-    private readonly ITransactionRepository _repository;
-    private readonly IHttpClientFactory _factory;
-    private readonly ILogger<PurchaseService> _logger;
+    private readonly ITransactionRepository _repository = repository;
+    private readonly IHttpClientFactory _factory = factory;
+    private readonly ILogger<PurchaseService> _logger = logger;
 
-    private readonly string _storageServiceUrl;
-    private readonly string _deliveryServiceUrl;
-    private readonly string _paymentServiceUrl;
-    private readonly string _ordersServiceUrl;
-
-    public PurchaseService(
-        ITransactionRepository repository,
-        IHttpClientFactory factory,
-        IOptions<ApiPointsOptions> options,
-        ILogger<PurchaseService> logger)
-    {
-        _repository = repository;
-        _factory = factory;
-
-        _storageServiceUrl = options.Value.StorageUrl;
-        _deliveryServiceUrl = options.Value.DeliveryUrl;
-        _paymentServiceUrl = options.Value.PaymentsUrl;
-        _ordersServiceUrl = options.Value.OrdersUrl;
-        _logger = logger;
-    }
+    private readonly string _storageServiceUrl = options.Value.StorageUrl;
+    private readonly string _deliveryServiceUrl = options.Value.DeliveryUrl;
+    private readonly string _paymentServiceUrl = options.Value.PaymentsUrl;
+    private readonly string _ordersServiceUrl = options.Value.OrdersUrl;
 
     public async Task<bool> AddItemBasket(Guid userId)
     {

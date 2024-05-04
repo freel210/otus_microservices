@@ -4,22 +4,15 @@ using System.Text.Json;
 
 namespace Gateway.Services;
 
-public class BillingService : IBillingService
+public class BillingService(
+    IKafkaService kafkaService,
+    IHttpClientFactory httpClientFactory,
+    IOptions<ApiPointsOptions> options) : IBillingService
 {
-    private readonly IKafkaService _kafkaService;
+    private readonly IKafkaService _kafkaService = kafkaService;
     private readonly string _putMoneyTopic = "put-money";
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly string _billingUrl;
-
-    public BillingService(
-        IKafkaService kafkaService,
-        IHttpClientFactory httpClientFactory,
-        IOptions<ApiPointsOptions> options)
-    {
-        _kafkaService = kafkaService;
-        _httpClientFactory = httpClientFactory;
-        _billingUrl = options.Value.BillingUrl;
-    }
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly string _billingUrl = options.Value.BillingUrl;
 
     public async Task<bool> PutMoney(Guid userId, decimal amount)
     {

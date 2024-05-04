@@ -4,16 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BillingService.Repositories;
 
-public class AmountRepository : IAmountRepository
+public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFactory scopeFactory) : IAmountRepository
 {
-    private readonly IServiceScopeFactory _scopeFactory;
-    private readonly ILogger<AmountRepository> _logger;
-
-    public AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFactory scopeFactory)
-    {
-        _logger = logger;
-        _scopeFactory = scopeFactory;
-    }
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
+    private readonly ILogger<AmountRepository> _logger = logger;
 
     public async Task<bool> CreateAccount(Guid userId)
     {

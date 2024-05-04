@@ -8,18 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthenticationService.Services;
 
-public class JwtService : IJwtService
+public class JwtService(IOptions<JwtServiceOptions> options, IPrivateKeyRepository privateKeyRepository) : IJwtService
 {
-    private readonly JwtServiceOptions options;
-    private readonly JwtHeader jwtHeader;
-
-    public JwtService(IOptions<JwtServiceOptions> options, IPrivateKeyRepository privateKeyRepository)
-    {
-        this.options = options.Value;
-
-        jwtHeader =
+    private readonly JwtServiceOptions options = options.Value;
+    private readonly JwtHeader jwtHeader =
             new JwtHeader(new SigningCredentials(privateKeyRepository.PrivateKey, SecurityAlgorithms.RsaSha256));
-    }
 
     public string CreateAccessToken(JwtPayload jwtPayload, bool isForever = false)
     {
