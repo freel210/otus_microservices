@@ -17,7 +17,7 @@ builder.Services.AddSwaggerGen(options =>
     AssemblyInfo.AssemblyName,
     new OpenApiInfo
     {
-        Title = $"{AssemblyInfo.ProgramNameVersion} manual",
+        Title = $"{AssemblyInfo.AssemblyName}",
     });
 
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);

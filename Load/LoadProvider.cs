@@ -5,6 +5,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace Load;
+
 public class LoadProvider(int index, string baseUrl, CancellationToken token)
 {
     private readonly HttpClient _httpClient = new()
@@ -21,7 +22,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
         while(!_token.IsCancellationRequested)
         {
             await ImitateDelay();
-            
+        
             var (id, versionId) = await Create();
             await Get(id);
             await Edit(id, versionId);
@@ -192,7 +193,7 @@ public class LoadProvider(int index, string baseUrl, CancellationToken token)
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString(),
             Guid.NewGuid().ToString());
-        
+    
         string requestId = Guid.NewGuid().ToString();
 
         while (true)

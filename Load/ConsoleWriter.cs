@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
 namespace Load;
+
 internal static class ConsoleWriter
 {
     private static readonly ConcurrentQueue<string> _messages = new();

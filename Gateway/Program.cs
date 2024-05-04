@@ -21,7 +21,7 @@ builder.Services.AddSwaggerGen(options =>
     AssemblyInfo.AssemblyName,
     new OpenApiInfo
     {
-        Title = $"{AssemblyInfo.ProgramNameVersion} manual",
+        Title = $"{AssemblyInfo.AssemblyName}",
     });
 
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);
@@ -65,6 +65,7 @@ builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IPurchaseService, PurchaseService>();
 builder.Services.AddSingleton<IKafkaService, KafkaService>();
 builder.Services.AddSingleton<IBillingService, BillingService>();
+builder.Services.AddSingleton<INotificationsService, NotificationsService>();
 
 builder.Services.AddSingleton<ITransactionRepository, TransactionRepository>();
 
@@ -116,7 +117,9 @@ app.UseDeveloperExceptionPage();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.RegisterEndpoints();
-app.RegisterUsersEndpoints();
+app.RegisterUserEndpoints();
+app.RegisterBillingEndpoints();
+app.RegisterOrderEndpoints();
+app.RegisterNotificationsEndpoints();
 
 app.Run();

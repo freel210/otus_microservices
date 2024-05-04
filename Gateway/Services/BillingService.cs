@@ -25,16 +25,16 @@ public class BillingService : IBillingService
     {
         string id = Guid.NewGuid().ToString();
         string message = JsonSerializer.Serialize(new {Id = id, UserId = userId, Amount = amount });
-        
+    
         return await _kafkaService.Publish(_putMoneyTopic, message);
     }
 
     public async Task<decimal> GetUserAmount(Guid userId)
     {
-        using var demoClient = _httpClientFactory.CreateClient();
-        demoClient.BaseAddress = new Uri(_billingUrl);
+        using var client = _httpClientFactory.CreateClient();
+        client.BaseAddress = new Uri(_billingUrl);
 
-        var response = await demoClient.GetAsync($"/amount/{userId}");
+        var response = await client.GetAsync($"/amount/{userId}");
         response.EnsureSuccessStatusCode();
 
         var stream = await response.Content.ReadAsStreamAsync();

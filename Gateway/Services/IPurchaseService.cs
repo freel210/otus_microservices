@@ -1,7 +1,11 @@
-﻿namespace Gateway.Services;
+﻿using Gateway.DTO.Income;
+
+namespace Gateway.Services;
 
 public interface IPurchaseService
 {
-    Task<bool> Buy();
-    Task<bool> BuyError();
+    Task<bool> Buy(Guid userId);
+    Task<bool> AddItemBasket(Guid userId);
+    Task<bool> RemoveItemBasket(Guid userId);
+    Task<int> GetItemsBasket(Guid userId);
 }

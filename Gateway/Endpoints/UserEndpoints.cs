@@ -7,13 +7,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Gateway.Endpoints;
 
-public static class UsersEndpoints
+public static class UserEndpoints
 {
-    public static void RegisterUsersEndpoints(this WebApplication app)
+    public static void RegisterUserEndpoints(this WebApplication app)
     {
-        var usersGroup = app.MapGroup("/user").WithTags("Users");
+        var group = app.MapGroup("/user").WithTags("User");
 
-        usersGroup.MapPost("/register", RegisterUser);
+        group.MapPost("/register", RegisterUser);
 
         [AllowAnonymous]
         async static Task<Results<Ok, Conflict>> RegisterUser([Required] RegistrationRequest? request, IAuthService service)
@@ -29,7 +29,7 @@ public static class UsersEndpoints
             }
         }
 
-        usersGroup.MapPost("/login",
+        group.MapPost("/login",
         [AllowAnonymous]
         async Task<Results<Ok<TokensBundleResponse>, UnauthorizedHttpResult, NotFound>> ([Required] RegistrationRequest? request, IAuthService service) =>
         {
@@ -48,7 +48,7 @@ public static class UsersEndpoints
             }
         });
 
-        usersGroup.MapPut("/",
+        group.MapPut("/",
         [Authorize]
         async Task<Results<Ok, Conflict>> (HttpContext context, UserUpdateRequest request, IUserService service) =>
         {
@@ -68,7 +68,7 @@ public static class UsersEndpoints
             }
         });
 
-        usersGroup.MapGet("/",
+        group.MapGet("/",
         [Authorize]
         async Task<Results<Ok<UserResponse>, NotFound>> (HttpContext context, IUserService service) =>
         {

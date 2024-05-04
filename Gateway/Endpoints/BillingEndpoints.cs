@@ -1,52 +1,17 @@
 ﻿using Gateway.DTO.Income;
-using Gateway.Entities;
-using Gateway.Repositories;
 using Gateway.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Gateway.Endpoints;
 
-public static class Endpoints
+public static class BillingEndpoints
 {
-    public static void RegisterEndpoints(this WebApplication app)
+    public static void RegisterBillingEndpoints(this WebApplication app)
     {
-        app.MapGet("/buy",
-        [AllowAnonymous]
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
-        {
-            var result = await service.Buy();
+        var group = app.MapGroup("/billing").WithTags("Billing");
 
-            if (result == true)
-            {
-                return TypedResults.Ok();
-            }
-
-            return TypedResults.Conflict();
-        });
-
-        app.MapGet("/buy-error", 
-        [AllowAnonymous] 
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
-        {
-            var result = await service.BuyError();
-
-            if (result == true)
-            {
-                return TypedResults.Ok();
-            }
-
-            return TypedResults.Conflict();
-        });
-
-        app.MapGet("/transactions",
-        async Task<Results<Ok<IReadOnlyList<DistributedTransaction>>, NotFound>> (ITransactionRepository repository) =>
-        {
-            var response = await repository.GetAll();
-            return TypedResults.Ok(response);
-        });
-
-        app.MapPost("/put-money",
+        group.MapPost("/put-money",
         [Authorize] 
         async Task<Results<Ok, Conflict>> (HttpContext context, PutMoneyRequest request, IBillingService service) =>
         {
@@ -65,7 +30,7 @@ public static class Endpoints
             return TypedResults.Conflict();
         });
 
-        app.MapGet("/amount",
+        group.MapGet("/",
         [Authorize]
         async Task<Results<Ok<decimal>, NotFound>> (HttpContext context, IBillingService service) =>
         {
