@@ -1,13 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.DTO.Income
-{
-    public record RegistrationRequest
-    {
-        [Required]
-        public string? Login { get; set; }
+namespace Gateway.DTO.Income;
 
-        [Required]
-        public string? Password { get; set; }
-    }
+public record RegistrationRequest
+{
+    [Required]
+    public string? Login { get; set; }
+
+    [Required]
+    public string? Password { get; set; }
 }

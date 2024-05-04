@@ -1,8 +1,7 @@
-﻿namespace Gateway.Services
+﻿namespace Gateway.Services;
+
+public interface IPurchaseService
 {
-    public interface IPurchaseService
-    {
-        Task<bool> Buy();
-        Task<bool> BuyError();
-    }
+    Task<bool> Buy();
+    Task<bool> BuyError();
 }

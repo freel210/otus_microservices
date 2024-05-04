@@ -1,8 +1,7 @@
-﻿namespace Gateway.Services
+﻿namespace Gateway.Services;
+
+public interface IBillingService
 {
-    public interface IBillingService
-    {
-        Task<bool> PutMoney(Guid userId, decimal amount);
-        Task<decimal> GetUserAmount(Guid userId);
-    }
+    Task<bool> PutMoney(Guid userId, decimal amount);
+    Task<decimal> GetUserAmount(Guid userId);
 }

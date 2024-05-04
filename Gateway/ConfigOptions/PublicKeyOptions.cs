@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Gateway.ConfigOptions
+namespace Gateway.ConfigOptions;
+
+public class PublicKeyOptions
 {
-    public class PublicKeyOptions
-    {
-        [Required]
-        public string? PublicKey { get; set; }
-    }
+    [Required]
+    public string? PublicKey { get; set; }
 }

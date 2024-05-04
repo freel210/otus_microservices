@@ -1,11 +1,10 @@
 ﻿using Gateway.Entities;
 
-namespace Gateway.Repositories
+namespace Gateway.Repositories;
+
+public interface ITransactionRepository
 {
-    public interface ITransactionRepository
-    {
-        Task<Guid> AddTransaction();
-        Task CancelTransaction(Guid id);
-        Task<IReadOnlyList<DistributedTransaction>> GetAll();
-    }
+    Task<Guid> AddTransaction();
+    Task CancelTransaction(Guid id);
+    Task<IReadOnlyList<DistributedTransaction>> GetAll();
 }

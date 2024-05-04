@@ -1,11 +1,10 @@
 ﻿using AuthenticationService.Entities;
 
-namespace AuthenticationService.Repositories
+namespace AuthenticationService.Repositories;
+
+public interface IAuthRepository
 {
-    public interface IAuthRepository
-    {
-        Task<Guid> Add(Auth auth);
-        Task<Auth> Get(string login);
-        Task<IReadOnlyList<Auth>> GetAll();
-    }
+    Task<Guid> Add(Auth auth);
+    Task<Auth> Get(string login);
+    Task<IReadOnlyList<Auth>> GetAll();
 }

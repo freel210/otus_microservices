@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace AuthenticationService.ConfigOptions
+namespace AuthenticationService.ConfigOptions;
+
+public class PrivateKeyOptions
 {
-    public class PrivateKeyOptions
-    {
-        [Required]
-        public string? PrivateKey { get; set; }
-    }
+    [Required]
+    public string? PrivateKey { get; set; }
 }

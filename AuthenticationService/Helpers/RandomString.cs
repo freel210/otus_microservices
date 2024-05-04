@@ -1,26 +1,25 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace AuthenticationService.Helpers
+namespace AuthenticationService.Helpers;
+
+public static class RandomString
 {
-    public static class RandomString
+    public static string NewToken(int length)
     {
-        public static string NewToken(int length)
+        return NewPassword(length, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+    }
+
+    public static string NewPassword(int length, string passwordCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*&^%$@!_")
+    {
+        StringBuilder stringBuilder = new(length);
+        byte[] bytes = RandomNumberGenerator.GetBytes(length);
+        byte[] array = bytes;
+        foreach (byte b in array)
         {
-            return NewPassword(length, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+            stringBuilder.Append(passwordCharset[b % passwordCharset.Length]);
         }
 
-        public static string NewPassword(int length, string passwordCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*&^%$@!_")
-        {
-            StringBuilder stringBuilder = new(length);
-            byte[] bytes = RandomNumberGenerator.GetBytes(length);
-            byte[] array = bytes;
-            foreach (byte b in array)
-            {
-                stringBuilder.Append(passwordCharset[b % passwordCharset.Length]);
-            }
-
-            return stringBuilder.ToString();
-        }
+        return stringBuilder.ToString();
     }
 }

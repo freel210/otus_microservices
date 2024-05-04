@@ -2,52 +2,51 @@
 using Gateway.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace Gateway.Repositories
+namespace Gateway.Repositories;
+
+public class TransactionRepository : ITransactionRepository
 {
-    public class TransactionRepository : ITransactionRepository
+    private readonly IServiceScopeFactory _scopeFactory;
+    private readonly ILogger<TransactionRepository> _logger;
+
+    public TransactionRepository(ILogger<TransactionRepository> logger, IServiceScopeFactory scopeFactory)
     {
-        private readonly IServiceScopeFactory _scopeFactory;
-        private readonly ILogger<TransactionRepository> _logger;
+        _logger = logger;
+        _scopeFactory = scopeFactory;
+    }
 
-        public TransactionRepository(ILogger<TransactionRepository> logger, IServiceScopeFactory scopeFactory)
+    public async Task<Guid> AddTransaction()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
+
+        Guid id = Guid.NewGuid();
+        DistributedTransaction entity = new()
         {
-            _logger = logger;
-            _scopeFactory = scopeFactory;
-        }
+            Id = id,
+            Status = true
+        };
 
-        public async Task<Guid> AddTransaction()
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
+        await context.Transactions.AddAsync(entity);
+        await context.SaveChangesAsync();
 
-            Guid id = Guid.NewGuid();
-            DistributedTransaction entity = new()
-            {
-                Id = id,
-                Status = true
-            };
+        return id;
+    }
 
-            await context.Transactions.AddAsync(entity);
-            await context.SaveChangesAsync();
+    public async Task CancelTransaction(Guid id)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
 
-            return id;
-        }
+        await context.Transactions.Where(x => x.Id == id)
+            .ExecuteUpdateAsync(x => x.SetProperty(y => y.Status, y => false));
+    }
 
-        public async Task CancelTransaction(Guid id)
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
+    public async Task<IReadOnlyList<DistributedTransaction>> GetAll()
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
 
-            await context.Transactions.Where(x => x.Id == id)
-                .ExecuteUpdateAsync(x => x.SetProperty(y => y.Status, y => false));
-        }
-
-        public async Task<IReadOnlyList<DistributedTransaction>> GetAll()
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<GatewayDbContext>();
-
-            return await context.Transactions.ToArrayAsync();
-        }
+        return await context.Transactions.ToArrayAsync();
     }
 }

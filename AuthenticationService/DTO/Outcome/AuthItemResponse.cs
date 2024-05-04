@@ -1,12 +1,11 @@
 ﻿using AuthenticationService.Entities;
 
-namespace AuthenticationService.DTO.Outcome
+namespace AuthenticationService.DTO.Outcome;
+
+public record AuthItemResponse(Guid? UserId, string? Login, string? PasswordHash)
 {
-    public record AuthItemResponse(Guid? UserId, string? Login, string? PasswordHash)
+    public static AuthItemResponse FromEntity(Auth entity)
     {
-        public static AuthItemResponse FromEntity(Auth entity)
-        {
-            return new(entity.UserId, entity.Login, entity.PasswordHash);
-        }
+        return new(entity.UserId, entity.Login, entity.PasswordHash);
     }
 }

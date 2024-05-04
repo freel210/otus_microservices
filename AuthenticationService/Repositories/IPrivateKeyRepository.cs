@@ -1,9 +1,8 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 
-namespace AuthenticationService.Repositories
+namespace AuthenticationService.Repositories;
+
+public interface IPrivateKeyRepository
 {
-    public interface IPrivateKeyRepository
-    {
-        RsaSecurityKey PrivateKey { get; }
-    }
+    RsaSecurityKey PrivateKey { get; }
 }

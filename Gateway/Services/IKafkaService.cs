@@ -1,7 +1,6 @@
-﻿namespace Gateway.Services
+﻿namespace Gateway.Services;
+
+public interface IKafkaService
 {
-    public interface IKafkaService
-    {
-        Task<bool> Publish(string topic, string message);
-    }
+    Task<bool> Publish(string topic, string message);
 }

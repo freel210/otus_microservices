@@ -1,9 +1,8 @@
-﻿namespace AuthenticationService.Enums
+﻿namespace AuthenticationService.Enums;
+
+public enum KeyFormats
 {
-    public enum KeyFormats
-    {
-        Pkcs1,
-        Pkcs8,
-        X509
-    }
+    Pkcs1,
+    Pkcs8,
+    X509
 }

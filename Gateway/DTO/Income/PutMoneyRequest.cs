@@ -1,4 +1,3 @@
-﻿namespace Gateway.DTO.Income
-{
-    public record PutMoneyRequest(decimal Ammount);
-}
+﻿namespace Gateway.DTO.Income;
+
+public record PutMoneyRequest(decimal Ammount);
