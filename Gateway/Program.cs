@@ -68,6 +68,8 @@ builder.Services.AddSingleton<IPurchaseService, PurchaseService>();
 builder.Services.AddSingleton<IKafkaService, KafkaService>();
 builder.Services.AddSingleton<IBillingService, BillingService>();
 
+builder.Services.AddSingleton<ITransactionRepository, TransactionRepository>();
+
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, TokenValidatorPostConfigure>();
 builder.Services.AddScoped<JwtBearerEventsHandler>();
 
@@ -199,9 +201,9 @@ app.MapGet("/buy-error", [AllowAnonymous] async (IPurchaseService service) =>
     return Results.Conflict();
 });
 
-app.MapGet("/transactions", async (GatewayDbContext context) =>
+app.MapGet("/transactions", async (ITransactionRepository repository) =>
 {
-    var response = await context.Transactions.ToArrayAsync();
+    var response = await repository.GetAll();
     return Results.Ok(response);
 });
 

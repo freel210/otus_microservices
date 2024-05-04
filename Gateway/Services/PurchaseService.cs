@@ -7,21 +7,22 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Gateway.DTO.Outcome;
+using Gateway.Repositories;
 
 namespace Gateway.Services
 {
     public class PurchaseService : IPurchaseService
     {
-        private readonly GatewayDbContext _context;
+        private readonly ITransactionRepository _repository;
         private readonly IHttpClientFactory _factory;
 
         private readonly string _storageServiceUrl;
         private readonly string _deliveryServiceUrl;
         private readonly string _paymentServiceUrl;
 
-        public PurchaseService(GatewayDbContext context, IHttpClientFactory factory, IOptions<ApiPointsOptions> options)
+        public PurchaseService(ITransactionRepository repository, IHttpClientFactory factory, IOptions<ApiPointsOptions> options)
         {
-            _context = context;
+            _repository = repository;
             _factory = factory;
 
             _storageServiceUrl = options.Value.StorageUrl;
@@ -31,7 +32,7 @@ namespace Gateway.Services
 
         public async Task<bool> Buy()
         {
-            var id = await AddTransaction();
+            var id = await _repository.AddTransaction();
 
             var storageTask = SendRequest(_storageServiceUrl, "add", id);
             var deliveryTask = SendRequest(_deliveryServiceUrl, "add", id);
@@ -48,14 +49,14 @@ namespace Gateway.Services
             deliveryTask = SendRequest(_deliveryServiceUrl, "cancel", id);
             paymentTask = SendRequest(_paymentServiceUrl, "cancel", id);
 
-            await Task.WhenAll(storageTask, deliveryTask, paymentTask, CancelTransaction(id));
+            await Task.WhenAll(storageTask, deliveryTask, paymentTask, _repository.CancelTransaction(id));
 
             return false;
         }
 
         public async Task<bool> BuyError()
         {
-            var id = await AddTransaction();
+            var id = await _repository.AddTransaction();
 
             var storageTask = SendRequest(_storageServiceUrl, "add", id);
             var deliveryTask = SendRequestError(_deliveryServiceUrl, "add", id); // error request
@@ -72,38 +73,9 @@ namespace Gateway.Services
             deliveryTask = SendRequest(_deliveryServiceUrl, "cancel", id);
             paymentTask = SendRequest(_paymentServiceUrl, "cancel", id);
 
-            await Task.WhenAll(storageTask, deliveryTask, paymentTask, CancelTransaction(id));
+            await Task.WhenAll(storageTask, deliveryTask, paymentTask, _repository.CancelTransaction(id));
 
             return false;
-        }
-
-        private async Task<Guid> AddTransaction()
-        {
-            Guid id = Guid.NewGuid();
-            DistributedTransaction entity = new()
-            {
-                Id = id,
-                Status = true
-            };
-
-            await _context.Transactions.AddAsync(entity);
-            _context.SaveChanges();
-            _context.ChangeTracker.Clear();
-
-            return id;
-        }
-
-        private async Task CancelTransaction(Guid id)
-        {
-            var entity = await _context.Transactions.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (entity != null)
-            {
-                entity.Status = false;
-                _context.Transactions.Update(entity);
-                _context.SaveChanges();
-                _context.ChangeTracker.Clear();
-            }
         }
 
         private async Task<bool> SendRequest(string baseAddress, string serviceUrl, Guid tid)
