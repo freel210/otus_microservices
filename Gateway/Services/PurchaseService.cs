@@ -13,13 +13,18 @@ public class PurchaseService : IPurchaseService
 {
     private readonly ITransactionRepository _repository;
     private readonly IHttpClientFactory _factory;
+    private readonly ILogger<PurchaseService> _logger;
 
     private readonly string _storageServiceUrl;
     private readonly string _deliveryServiceUrl;
     private readonly string _paymentServiceUrl;
     private readonly string _ordersServiceUrl;
 
-    public PurchaseService(ITransactionRepository repository, IHttpClientFactory factory, IOptions<ApiPointsOptions> options)
+    public PurchaseService(
+        ITransactionRepository repository,
+        IHttpClientFactory factory,
+        IOptions<ApiPointsOptions> options,
+        ILogger<PurchaseService> logger)
     {
         _repository = repository;
         _factory = factory;
@@ -28,6 +33,7 @@ public class PurchaseService : IPurchaseService
         _deliveryServiceUrl = options.Value.DeliveryUrl;
         _paymentServiceUrl = options.Value.PaymentsUrl;
         _ordersServiceUrl = options.Value.OrdersUrl;
+        _logger = logger;
     }
 
     public async Task<bool> AddItemBasket(Guid userId)
@@ -84,8 +90,9 @@ public class PurchaseService : IPurchaseService
 
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Post error");
             return false;
         }
     }
@@ -105,8 +112,9 @@ public class PurchaseService : IPurchaseService
 
             return userResponse;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Get error");
             return default;
         }      
     }

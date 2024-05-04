@@ -14,44 +14,89 @@ public static class OrderEndpoints
 
         group.MapPost("/add-item-basket",
         [Authorize]
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
+        async Task<Results<Ok, Conflict<string>>> (HttpContext context, IPurchaseService service) =>
         {
-            return TypedResults.Ok();
+            var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+            Guid userId = new Guid(id);
+
+            try
+            {
+                bool isOk = await service.AddItemBasket(userId);
+                return isOk ? TypedResults.Ok() : TypedResults.Conflict("false");
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Conflict(ex.Message);
+            }
         });
 
         group.MapPost("/remove-item-basket",
         [Authorize]
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
+        async Task<Results<Ok, Conflict<string>>> (HttpContext context, IPurchaseService service) =>
         {
-            return TypedResults.Ok();
+            var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+            Guid userId = new Guid(id);
+
+            try
+            {
+                bool isOk = await service.RemoveItemBasket(userId);
+                return isOk ? TypedResults.Ok() : TypedResults.Conflict("false");
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Conflict(ex.Message);
+            }
         });
 
         group.MapGet("/",
-        [AllowAnonymous]
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
+        [Authorize]
+        async Task<Results<Ok<int>, Conflict<string>>> (HttpContext context, IPurchaseService service) =>
         {
-            return TypedResults.Ok();
+            try
+            {
+                var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+                Guid userId = new Guid(id);
+
+                var result = await service.GetItemsBasket(userId);
+
+                return TypedResults.Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Conflict(ex.Message);
+            }
         });
 
         group.MapPost("/buy",
-        [AllowAnonymous]
-        async Task<Results<Ok, Conflict>> (IPurchaseService service) =>
+        [Authorize]
+        async Task<Results<Ok, Conflict<string>>> (HttpContext context, IPurchaseService service) =>
         {
-            var result = await service.Buy();
-
-            if (result == true)
+            try
             {
-                return TypedResults.Ok();
-            }
+                var id = context.User.Claims.First(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value!;
+                Guid userId = new Guid(id);
 
-            return TypedResults.Conflict();
+                var isOk = await service.Buy(userId);
+                return isOk ? TypedResults.Ok() : TypedResults.Conflict("false");
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Conflict(ex.Message);
+            }          
         });
 
         group.MapGet("/transactions",
-        async Task<Results<Ok<IReadOnlyList<DistributedTransaction>>, NotFound>> (ITransactionRepository repository) =>
+        async Task<Results<Ok<IReadOnlyList<DistributedTransaction>>, Conflict<string>>> (ITransactionRepository repository) =>
         {
-            var response = await repository.GetAll();
-            return TypedResults.Ok(response);
+            try
+            {
+                var response = await repository.GetAll();
+                return TypedResults.Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return TypedResults.Conflict(ex.Message);
+            }
         });
     }
 }

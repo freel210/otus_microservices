@@ -47,6 +47,7 @@ services:
       echo -e 'Creating kafka topics'
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic put-money --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic user-created --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-cancelled --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker:29092 --list
@@ -210,6 +211,7 @@ services:
       ApiPointsOptions__StorageUrl: "http://storage:5072"
       ApiPointsOptions__DeliveryUrl: "http://delivery:5073"
       ApiPointsOptions__BillingUrl: "http://billing:5076"
+      ApiPointsOptions__OrdersUrl: "http://orders:5074"
       KafkaBootstrap: "broker:29092"
     build:
       context: ./Gateway
