@@ -1,12 +1,10 @@
 using Gateway.Authentication;
 using Gateway.ConfigOptions;
-using Gateway.Contexts;
 using Gateway.Endpoints;
 using Gateway.Helpers;
 using Gateway.Repositories;
 using Gateway.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -65,9 +63,6 @@ builder.Services.AddSingleton<IAuthService, AuthService>();
 builder.Services.AddSingleton<IPurchaseService, PurchaseService>();
 builder.Services.AddSingleton<IKafkaService, KafkaService>();
 builder.Services.AddSingleton<IBillingService, BillingService>();
-builder.Services.AddSingleton<INotificationsService, NotificationsService>();
-
-builder.Services.AddSingleton<ITransactionRepository, TransactionRepository>();
 
 builder.Services.AddSingleton<IPostConfigureOptions<JwtBearerOptions>, TokenValidatorPostConfigure>();
 builder.Services.AddScoped<JwtBearerEventsHandler>();
@@ -95,14 +90,6 @@ builder.Services.AddAuthentication(o =>
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddDbContext<GatewayDbContext>(options =>
-{
-    options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-});
-
 var app = builder.Build();
 
 app.UseSwagger();
@@ -120,6 +107,5 @@ app.UseAuthorization();
 app.RegisterUserEndpoints();
 app.RegisterBillingEndpoints();
 app.RegisterOrderEndpoints();
-app.RegisterNotificationsEndpoints();
 
 app.Run();

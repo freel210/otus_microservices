@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Load", "Load\Load.csproj", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gateway", "Gateway\Gateway.csproj", "{714B189E-720C-491A-9B6F-04CF96D0B120}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PaymentsService", "PaymentsService\PaymentsService.csproj", "{D01D6C73-6968-4E75-A732-4CF6CA35C9DD}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StorageService", "StorageService\StorageService.csproj", "{8B1160DC-5830-40BF-B974-78CE2D91ECC9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthenticationService", "AuthenticationService\AuthenticationService.csproj", "{3B665D50-6885-41C8-BCD7-780DAD4FCF7C}"
@@ -37,10 +35,6 @@ Global
 		{714B189E-720C-491A-9B6F-04CF96D0B120}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{714B189E-720C-491A-9B6F-04CF96D0B120}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{714B189E-720C-491A-9B6F-04CF96D0B120}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D01D6C73-6968-4E75-A732-4CF6CA35C9DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D01D6C73-6968-4E75-A732-4CF6CA35C9DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D01D6C73-6968-4E75-A732-4CF6CA35C9DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D01D6C73-6968-4E75-A732-4CF6CA35C9DD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B1160DC-5830-40BF-B974-78CE2D91ECC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8B1160DC-5830-40BF-B974-78CE2D91ECC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B1160DC-5830-40BF-B974-78CE2D91ECC9}.Release|Any CPU.ActiveCfg = Release|Any CPU

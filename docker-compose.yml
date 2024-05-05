@@ -48,6 +48,7 @@ services:
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic put-money --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic user-created --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic prepare-order --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic ready --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-created --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-cancelled --replication-factor 1 --partitions 1
 
@@ -114,22 +115,6 @@ services:
       dockerfile: Dockerfile
     ports:
      - "5068:5068"
-    depends_on:
-     - postgres
-
-  payments:
-    container_name: 'payments'
-    image: 'f210/payments:v20'
-    environment:
-      DB_PAYMENTS_USER: "postgres"
-      DB_PAYMENTS_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "paymentsdb2"
-    build:
-      context: ./PaymentsService
-      dockerfile: Dockerfile
-    ports:
-     - "5071:5071"
     depends_on:
      - postgres
 
@@ -203,15 +188,8 @@ services:
     container_name: 'gateway'
     image: 'f210/gateway:v20'
     environment:
-      DB_GATEWAY_USER: "postgres"
-      DB_GATEWAY_PASSWORD: "123465"
-      PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "gatewaydb2"
       ApiPointsOptions__AuthUrl: "http://auth:5068"
       ApiPointsOptions__DemoUrl: "http://web:8000"
-      ApiPointsOptions__PaymentsUrl: "http://payments:5071"
-      ApiPointsOptions__StorageUrl: "http://storage:5072"
-      ApiPointsOptions__DeliveryUrl: "http://delivery:5073"
       ApiPointsOptions__BillingUrl: "http://billing:5076"
       ApiPointsOptions__OrdersUrl: "http://orders:5074"
       KafkaBootstrap: "broker:29092"

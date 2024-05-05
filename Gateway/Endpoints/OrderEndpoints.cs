@@ -1,6 +1,4 @@
-﻿using Gateway.Entities;
-using Gateway.Repositories;
-using Gateway.Services;
+﻿using Gateway.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 

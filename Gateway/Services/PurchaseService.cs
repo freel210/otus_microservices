@@ -9,7 +9,6 @@ using Gateway.Repositories;
 namespace Gateway.Services;
 
 public class PurchaseService(
-    ITransactionRepository repository,
     IHttpClientFactory factory,
     IOptions<ApiPointsOptions> options,
     ILogger<PurchaseService> logger) : IPurchaseService
