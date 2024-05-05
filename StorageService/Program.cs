@@ -3,7 +3,6 @@ using Microsoft.OpenApi.Models;
 using StorageService.ConfigOptions;
 using StorageService.Contexts;
 using StorageService.DTO.Income;
-using StorageService.Entities;
 using StorageService.Helpers;
 using StorageService.Repositoreis;
 using System.ComponentModel.DataAnnotations;

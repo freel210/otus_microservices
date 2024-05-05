@@ -84,19 +84,5 @@ public static class OrderEndpoints
                 return TypedResults.Conflict(ex.Message);
             }          
         });
-
-        group.MapGet("/transactions",
-        async Task<Results<Ok<IReadOnlyList<DistributedTransaction>>, Conflict<string>>> (ITransactionRepository repository) =>
-        {
-            try
-            {
-                var response = await repository.GetAll();
-                return TypedResults.Ok(response);
-            }
-            catch (Exception ex)
-            {
-                return TypedResults.Conflict(ex.Message);
-            }
-        });
     }
 }

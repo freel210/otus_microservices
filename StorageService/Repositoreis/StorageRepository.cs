@@ -35,7 +35,7 @@ public class StorageRepository(ILogger<StorageRepository> logger, IServiceScopeF
             var count = await context.Items.Where(x => x.Id == id)
                 .ExecuteUpdateAsync(x => x.SetProperty(y => y.Quantity, y => y.Quantity + quantity));
 
-            return true;
+            return (count > 0);
         }
         catch (Exception ex)
         {

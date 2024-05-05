@@ -6,20 +6,21 @@ using System.Text.Json;
 
 namespace OrdersService.HostedServices;
 
-public class KafkaHostedService : IHostedService
+public class KafkaConsumerHostedService : IHostedService
 {
     private readonly ConsumerConfig _config;
 
     private readonly string _orderCancelledTopic = "order-cancelled";
+    private readonly string _orderCompletedTopic = "order-completed";
 
-    private readonly ILogger<KafkaHostedService> _logger;
+    private readonly ILogger<KafkaConsumerHostedService> _logger;
     private readonly IBasketItemRepository _repository;
 
     private bool _canceled = false;
 
-    public KafkaHostedService(
+    public KafkaConsumerHostedService(
         IConfiguration configuration,
-        ILogger<KafkaHostedService> logger,
+        ILogger<KafkaConsumerHostedService> logger,
         IBasketItemRepository repository)
     {
         _config = new ConsumerConfig
@@ -38,8 +39,9 @@ public class KafkaHostedService : IHostedService
     public Task StartAsync(CancellationToken cancellationToken)
     {
         Task.Run(() => ConsumeOrderCancelledTopik(cancellationToken));
+        Task.Run(() => ConsumeOrderCompletedTopik(cancellationToken));
 
-        _logger.LogInformation($"{nameof(KafkaHostedService)} started");
+        _logger.LogInformation($"{nameof(KafkaConsumerHostedService)} started");
         return Task.CompletedTask;
     }
 
@@ -71,7 +73,7 @@ public class KafkaHostedService : IHostedService
                             if (consumeResult != null)
                             {
                                 _logger.LogInformation($"{consumeResult.Message.Value}");
-                                BasketItemRequest request = JsonSerializer.Deserialize<BasketItemRequest>(consumeResult.Message.Value);
+                                UserIdRequest request = JsonSerializer.Deserialize<UserIdRequest>(consumeResult.Message.Value);
                                 await DeleteItems(request.UserId);
                             }
 
@@ -90,6 +92,52 @@ public class KafkaHostedService : IHostedService
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Subscribing {_orderCancelledTopic} error");
+                await Task.Delay(3000, cancellationToken);
+            }
+        }
+    }
+
+    private async Task ConsumeOrderCompletedTopik(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation($"Starting consume {_orderCompletedTopic}");
+
+        while (!_canceled || !cancellationToken.IsCancellationRequested)
+        {
+            try
+            {
+                using (var consumer = new ConsumerBuilder<Ignore, string>(_config).Build())
+                {
+                    consumer.Subscribe(_orderCompletedTopic);
+                    _logger.LogInformation($"Topic {_orderCompletedTopic} subscribed");
+
+                    while (!_canceled || !cancellationToken.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            var consumeResult = consumer.Consume(cancellationToken);
+
+                            if (consumeResult != null)
+                            {
+                                _logger.LogInformation($"{consumeResult.Message.Value}");
+                                UserIdRequest request = JsonSerializer.Deserialize<UserIdRequest>(consumeResult.Message.Value);
+                                await DeleteItems(request.UserId);
+                            }
+
+                            await Task.Delay(100, cancellationToken);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, $"Consuming {_orderCompletedTopic} error");
+                            await Task.Delay(100, cancellationToken);
+                        }
+                    }
+
+                    consumer.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Subscribing {_orderCompletedTopic} error");
                 await Task.Delay(3000, cancellationToken);
             }
         }

@@ -1,6 +1,4 @@
-﻿using Gateway.DTO.Income;
-
-namespace Gateway.Services;
+﻿namespace Gateway.Services;
 
 public interface IPurchaseService
 {
