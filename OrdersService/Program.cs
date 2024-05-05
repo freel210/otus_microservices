@@ -32,7 +32,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<OrdersDbContext>(options =>
 {
     options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 builder.Services.AddSingleton<IBasketItemRepository, BasketItemRepository>();

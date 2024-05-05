@@ -157,7 +157,7 @@ services:
       DB_BILLING_USER: "postgres"
       DB_BILLING_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "billingdb3"
+      PostgresOptions__Database: "billingdb4"
     build:
       context: ./BillingService
       dockerfile: Dockerfile
@@ -202,7 +202,6 @@ services:
      - web
      - auth
      - postgres
-     - payments
      - storage
      - delivery
      - billing

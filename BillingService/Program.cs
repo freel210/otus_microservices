@@ -5,6 +5,7 @@ using BillingService.ConfigOptions;
 using BillingService.Contexts;
 using BillingService.Repositories;
 using BillingService.HostedServices;
+using BillingService.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5076); });
@@ -25,15 +26,18 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
-builder.Services.AddSingleton<IAmountRepository, AmountRepository>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<BillingDbContext>(options =>
 {
     options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
-builder.Services.AddHostedService<KafkaHostedService>();
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
+
+builder.Services.AddSingleton<IKafkaService, KafkaService>();
+
+builder.Services.AddSingleton<IAmountService, AmountService>();
+builder.Services.AddSingleton<IAmountRepository, AmountRepository>();
 
 var app = builder.Build();
 

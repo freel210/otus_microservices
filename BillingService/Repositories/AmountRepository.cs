@@ -23,7 +23,7 @@ public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFac
                 Amount newAmount = new()
                 {
                     UserId = userId,
-                    Total = 0,
+                    AvailableFunds = 0,
                 };
 
                 await context.Amounts.AddAsync(newAmount);
@@ -55,7 +55,7 @@ public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFac
                 return false;
             }
 
-            amount.Total += some;
+            amount.AvailableFunds += some;
             context.Amounts.Update(amount);
             await context.SaveChangesAsync();
 
@@ -68,7 +68,7 @@ public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFac
         }
     }
 
-    public async Task<bool> WriteoutMoney(Guid userId, decimal some)
+    public async Task<bool> WriteOutMoney(Guid userId, decimal some)
     {
         using var scope = _scopeFactory.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
@@ -77,12 +77,12 @@ public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFac
         {
             var amount = await context.Amounts.FirstOrDefaultAsync(a => a.UserId == userId);
 
-            if (amount == null || amount.Total < some)
+            if (amount == null || amount.AvailableFunds < some)
             {
                 return false;
             }
 
-            amount.Total -= some;
+            amount.AvailableFunds -= some;
             context.Amounts.Update(amount);
             await context.SaveChangesAsync();
 
@@ -106,6 +106,101 @@ public class AmountRepository(ILogger<AmountRepository> logger, IServiceScopeFac
             return 0;
         }
 
-        return amount.Total;
+        return amount.AvailableFunds;
+    }
+
+    public async Task<bool> LockMoney(Guid userId, decimal some)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        using var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
+        using var transaction = context.Database.BeginTransaction();
+
+        try
+        {
+            var funds = context.Amounts.FirstOrDefault(a => a.UserId == userId);
+
+            if (funds == null || funds.AvailableFunds < some)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            funds.AvailableFunds -= some;
+            funds.LockedFunds = some;
+            await context.SaveChangesAsync();
+
+            transaction.Commit();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(LockMoney)}: {ex.Message}");
+
+            transaction.Rollback();
+            return false;
+        }
+    }
+
+    public async Task<bool> WriteOutMoney(Guid userId)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        using var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
+        using var transaction = context.Database.BeginTransaction();
+
+        try
+        {
+            var funds = context.Amounts.FirstOrDefault(a => a.UserId == userId);
+
+            if (funds == null)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            funds.LockedFunds = 0;
+            await context.SaveChangesAsync();
+
+            transaction.Commit();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(WriteOutMoney)}: {ex.Message}");
+
+            transaction.Rollback();
+            return false;
+        }
+    }
+
+    public async Task<bool> ReturnMoney(Guid userId)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        using var context = scope.ServiceProvider.GetRequiredService<BillingDbContext>();
+        using var transaction = context.Database.BeginTransaction();
+
+        try
+        {
+            var funds = context.Amounts.FirstOrDefault(a => a.UserId == userId);
+
+            if (funds == null)
+            {
+                transaction.Rollback();
+                return false;
+            }
+
+            funds.AvailableFunds += funds.LockedFunds;
+            funds.LockedFunds = 0;
+            await context.SaveChangesAsync();
+
+            transaction.Commit();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"{nameof(WriteOutMoney)}: {ex.Message}");
+
+            transaction.Rollback();
+            return false;
+        }
     }
 }

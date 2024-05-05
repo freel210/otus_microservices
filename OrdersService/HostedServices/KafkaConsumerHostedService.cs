@@ -10,7 +10,6 @@ public class KafkaConsumerHostedService : IHostedService
 {
     private readonly ConsumerConfig _config;
 
-    private readonly string _orderCancelledTopic = "order-cancelled";
     private readonly string _orderCompletedTopic = "order-completed";
 
     private readonly ILogger<KafkaConsumerHostedService> _logger;
@@ -38,7 +37,6 @@ public class KafkaConsumerHostedService : IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        Task.Run(() => ConsumeOrderCancelledTopik(cancellationToken));
         Task.Run(() => ConsumeOrderCompletedTopik(cancellationToken));
 
         _logger.LogInformation($"{nameof(KafkaConsumerHostedService)} started");
@@ -49,52 +47,6 @@ public class KafkaConsumerHostedService : IHostedService
     {
         _canceled = true;
         await Task.CompletedTask;
-    }
-
-    private async Task ConsumeOrderCancelledTopik(CancellationToken cancellationToken)
-    {
-        _logger.LogInformation($"Starting consume {_orderCancelledTopic}");
-
-        while (!_canceled || !cancellationToken.IsCancellationRequested)
-        {
-            try
-            {
-                using (var consumer = new ConsumerBuilder<Ignore, string>(_config).Build())
-                {
-                    consumer.Subscribe(_orderCancelledTopic);
-                    _logger.LogInformation($"Topic {_orderCancelledTopic} subscribed");
-
-                    while (!_canceled || !cancellationToken.IsCancellationRequested)
-                    {
-                        try
-                        {
-                            var consumeResult = consumer.Consume(cancellationToken);
-
-                            if (consumeResult != null)
-                            {
-                                _logger.LogInformation($"{consumeResult.Message.Value}");
-                                UserIdRequest request = JsonSerializer.Deserialize<UserIdRequest>(consumeResult.Message.Value);
-                                await DeleteItems(request.UserId);
-                            }
-
-                            await Task.Delay(100, cancellationToken);
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger.LogError(ex, $"Consuming {_orderCancelledTopic} error");
-                            await Task.Delay(100, cancellationToken);
-                        }
-                    }
-
-                    consumer.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Subscribing {_orderCancelledTopic} error");
-                await Task.Delay(3000, cancellationToken);
-            }
-        }
     }
 
     private async Task ConsumeOrderCompletedTopik(CancellationToken cancellationToken)

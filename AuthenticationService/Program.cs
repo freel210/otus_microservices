@@ -40,7 +40,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<AuthDbContext>(options =>
 {
     options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 var app = builder.Build();

@@ -18,7 +18,7 @@ public class BillingService(
     {
         string id = Guid.NewGuid().ToString();
         string message = JsonSerializer.Serialize(new {Id = id, UserId = userId, Amount = amount });
-    
+
         return await _kafkaService.Publish(_putMoneyTopic, message);
     }
 

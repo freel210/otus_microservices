@@ -35,7 +35,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<UserDbContext>(options =>
 {
     options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 builder.Services.AddOpenTelemetry()

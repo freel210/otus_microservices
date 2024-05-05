@@ -30,7 +30,6 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDbContext<DeliveryDbContext>(options =>
 {
     options.UseNpgsql();
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
 });
 
 var app = builder.Build();

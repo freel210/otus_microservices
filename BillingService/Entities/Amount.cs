@@ -6,5 +6,6 @@ namespace BillingService.Entities;
 public class Amount
 {
     public Guid UserId { get; set; }
-    public decimal Total { get; set; }
+    public decimal AvailableFunds { get; set; }
+    public decimal LockedFunds { get; set; }
 }
