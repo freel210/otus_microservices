@@ -4,6 +4,9 @@ namespace StorageService.Repositoreis;
 
 public interface IStorageRepository
 {
-    Task<bool> AddItem(Guid id, int quantity);
+    Task<bool> SetQuantity(int quantity);
     Task<IReadOnlyList<Item>> GetAll();
+    Task<bool> ReserveItems(Guid userId, int quantity);
+    Task<bool> WriteOutItems(Guid userId);
+    Task<bool> ReturnItems(Guid userId);
 }

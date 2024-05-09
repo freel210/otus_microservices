@@ -1,27 +1,29 @@
-﻿using BillingService.Entities;
-using BillingService.Repositories;
+﻿using StorageService.Repositoreis;
 using System.Text.Json;
 
-namespace BillingService.Service;
+namespace StorageService.Services;
 
-public class AmountService(IKafkaService kafkaService, ILogger<AmountService> logger, IAmountRepository repository) : IAmountService
+public class StorageItemService(
+    ILogger<StorageItemService> loger, 
+    IStorageRepository repository, 
+    IKafkaService kafkaService) : IStorageItemService
 {
+    private readonly ILogger<StorageItemService> _logger = loger;
+    private readonly IStorageRepository _repository = repository;
     private readonly IKafkaService _kafkaService = kafkaService;
-    private readonly ILogger<AmountService> _logger = logger;
-    private readonly IAmountRepository _repository = repository;
 
     private readonly string _readyTopic = "ready";
     private readonly string _cancelOrderTopic = "cancel-order";
 
-    private readonly string _service = "billing";
+    private readonly string _service = "storage";
 
-    public async Task<bool> PrepareOrder(Guid userId, Guid orderId, decimal funds)
+    public async Task<bool> PrepareOrder(Guid userId, Guid orderId, int quantity)
     {
-        bool isReady = await _repository.ReserveMoney(userId, funds);
+        bool isReady = await _repository.ReserveItems(userId, quantity);
 
         if (isReady)
         {
-            if(await SendOrderMessage(userId, orderId, _readyTopic))
+            if (await SendOrderMessage(userId, orderId, _readyTopic))
             {
                 return true;
             }
@@ -29,7 +31,7 @@ public class AmountService(IKafkaService kafkaService, ILogger<AmountService> lo
             _logger.LogError("Can't publish 'ready' message. Order is cancelled.");
         }
 
-        _logger.LogWarning("Insufficient funds");
+        _logger.LogWarning("Insufficient goods");
         await SendOrderMessage(userId, orderId, _cancelOrderTopic);
         return false;
     }

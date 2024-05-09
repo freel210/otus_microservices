@@ -49,8 +49,8 @@ services:
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic user-created --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic prepare-order --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic ready --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-created --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-cancelled --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic order-completed --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server broker:29092 --create --if-not-exists --topic cancel-order --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server broker:29092 --list
@@ -95,6 +95,7 @@ services:
       DB_USER: "postgres"
       DB_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "userdb5"
     build:
       context: ./UsersService
       dockerfile: Dockerfile
@@ -110,6 +111,7 @@ services:
       DB_AUTH_USER: "postgres"
       DB_AUTH_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "authdb5"
     build:
       context: ./AuthenticationService
       dockerfile: Dockerfile
@@ -125,7 +127,7 @@ services:
       DB_STORAGE_USER: "postgres"
       DB_STORAGE_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "storagedb4"
+      PostgresOptions__Database: "storagedb6"
     build:
       context: ./StorageService
       dockerfile: Dockerfile
@@ -141,7 +143,7 @@ services:
       DB_DELIVERY_USER: "postgres"
       DB_DELIVERY_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "deliveriesdb2"
+      PostgresOptions__Database: "deliveriesdb7"
     build:
       context: ./DeliveriesService
       dockerfile: Dockerfile
@@ -157,7 +159,7 @@ services:
       DB_BILLING_USER: "postgres"
       DB_BILLING_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "billingdb4"
+      PostgresOptions__Database: "billingdb6"
     build:
       context: ./BillingService
       dockerfile: Dockerfile
@@ -174,12 +176,29 @@ services:
       DB_ORDERS_USER: "postgres"
       DB_ORDERS_PASSWORD: "123465"
       PostgresOptions__Host: "postgres"
-      PostgresOptions__Database: "ordersdb3"
+      PostgresOptions__Database: "ordersdb5"
     build:
       context: ./OrdersService
       dockerfile: Dockerfile
     ports:
      - "5074:5074"
+    depends_on:
+     - postgres
+     - init-kafka
+
+  notification:
+    container_name: 'notification'
+    image: 'f210/notification:v20'
+    environment:
+      DB_NOTIFICATION_USER: "postgres"
+      DB_NOTIFICATION_PASSWORD: "123465"
+      PostgresOptions__Host: "postgres"
+      PostgresOptions__Database: "notificationdb7"
+    build:
+      context: ./NotificationService
+      dockerfile: Dockerfile
+    ports:
+     - "5075:5075"
     depends_on:
      - postgres
      - init-kafka
@@ -202,8 +221,6 @@ services:
      - web
      - auth
      - postgres
-     - storage
-     - delivery
      - billing
      - init-kafka
      - orders

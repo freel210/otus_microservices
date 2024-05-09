@@ -12,7 +12,7 @@ public class BasketItemRepository(ILogger<BasketItemRepository> logger, IService
     public async Task<bool> Add(Guid userId)
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        using var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
 
         try
         {
@@ -48,7 +48,7 @@ public class BasketItemRepository(ILogger<BasketItemRepository> logger, IService
     public async Task<bool> Remove(Guid userId)
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        using var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
 
         try
         {
@@ -67,7 +67,7 @@ public class BasketItemRepository(ILogger<BasketItemRepository> logger, IService
     public async Task<int> GetItemsQuantity(Guid userId)
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        using var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
 
         var item = await context.BasketItems.FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -82,7 +82,7 @@ public class BasketItemRepository(ILogger<BasketItemRepository> logger, IService
     public async Task<IReadOnlyList<BasketItem>> GetAll()
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        using var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
 
         return await context.BasketItems.ToArrayAsync();
     }
@@ -90,11 +90,13 @@ public class BasketItemRepository(ILogger<BasketItemRepository> logger, IService
     public async Task<bool> DeleteItems(Guid userId)
     {
         using var scope = _scopeFactory.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
+        using var context = scope.ServiceProvider.GetRequiredService<OrdersDbContext>();
 
         try
         {
             var count = await context.BasketItems.Where(x => x.UserId == userId).ExecuteDeleteAsync();
+
+            _logger.LogInformation($"Basket items for user {userId} deleted");
             return (count > 0);
         }
         catch (Exception ex)

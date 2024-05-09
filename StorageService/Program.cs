@@ -4,7 +4,9 @@ using StorageService.ConfigOptions;
 using StorageService.Contexts;
 using StorageService.DTO.Income;
 using StorageService.Helpers;
+using StorageService.HostedServices;
 using StorageService.Repositoreis;
+using StorageService.Services;
 using System.ComponentModel.DataAnnotations;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,10 @@ builder.Services.AddDbContext<StorageDbContext>(options =>
     options.UseNpgsql();
 });
 
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
+builder.Services.AddSingleton<IKafkaService, KafkaService>();
+
+builder.Services.AddSingleton<IStorageItemService, StorageItemService>();
 builder.Services.AddSingleton<IStorageRepository, StorageRepository>(); 
 
 var app = builder.Build();
@@ -44,11 +50,11 @@ app.UseSwaggerUI(options =>
 });
 app.UseDeveloperExceptionPage();
 
-app.MapPost("/add", async ([Required] StorageRequest? request, IStorageRepository repository) =>
+app.MapPost("/set", async ([Required] StorageRequest? request, IStorageRepository repository) =>
 {
-    Guid id = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6");
 
-    await repository.AddItem(id, request.Quantity);
+
+    await repository.SetQuantity(request.Quantity);
 
     return Results.Ok();
 });

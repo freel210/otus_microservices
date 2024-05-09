@@ -1,32 +1,53 @@
-var builder = WebApplication.CreateBuilder(args);
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using NotificationService.Helpers;
+using NotificationService.ConfigOptions;
+using NotificationService.Contexts;
+using NotificationService.Repositories;
+using NotificationService.HostedServices;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel(options => { options.ListenAnyIP(5075); });
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc(
+    AssemblyInfo.AssemblyName,
+    new OpenApiInfo
+    {
+        Title = $"{AssemblyInfo.AssemblyName}",
+    });
+
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{AssemblyInfo.AssemblyName}.xml"), true);
+
+    options.SupportNonNullableReferenceTypes();
+});
+
+builder.Services.AddOptions<PostgresOptions>().BindConfiguration("PostgresOptions");
+builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+builder.Services.AddDbContext<NotificationDbContext>(options =>
+{
+    options.UseNpgsql();
+});
+
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
+builder.Services.AddSingleton<INotificationRepository, NotificationRepository>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-var summaries = new[]
+app.UseSwagger();
+app.UseSwaggerUI(options =>
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    options.SwaggerEndpoint($"./{AssemblyInfo.AssemblyName}/swagger.json", AssemblyInfo.AssemblyName);
+    options.DocumentTitle = $"{AssemblyInfo.ProgramNameVersion} manual";
+});
+app.UseDeveloperExceptionPage();
 
-app.MapGet("/weatherforecast", () =>
+app.MapGet("/notifications", async (NotificationDbContext context) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
+    var response = await context.Notifications.OrderByDescending(x => x.CreatedAt).ToArrayAsync();
+    return Results.Ok(response);
 });
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

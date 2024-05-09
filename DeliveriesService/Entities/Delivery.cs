@@ -2,10 +2,11 @@
 
 namespace DeliveriesService.Entities;
 
-[PrimaryKey(nameof(Id))]
+[PrimaryKey(nameof(OrderId))]
 public class Delivery
 {
-    public Guid Id { get; set; }
-    public Guid Tid { get; set; }
-    public bool Status { get; set; }
+    public Guid OrderId { get; set; }
+    public Guid UserId { get; set; }
+    public bool? IsBillingOk { get; set; } = null;
+    public bool? IsStorageOk { get; set; } = null;
 }

@@ -25,7 +25,8 @@ public class PurchaseService(
             int quantity = await _repository.GetItemsQuantity(userId);
             decimal fullCost = _cost * quantity;
 
-            string message = JsonSerializer.Serialize(new { UserId = userId, Quantity = quantity, FullCost = fullCost });
+            Guid orderId = Guid.NewGuid();
+            string message = JsonSerializer.Serialize(new { UserId = userId, OrderId = orderId, Quantity = quantity, FullCost = fullCost });
             return await _kafkaService.Publish(_prepareOrderTopic, message);
         }
         catch (Exception ex)

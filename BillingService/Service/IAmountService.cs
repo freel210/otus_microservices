@@ -2,5 +2,5 @@
 
 public interface IAmountService
 {
-    Task<bool> PrepareOrder(Guid userId, decimal funds);
+    Task<bool> PrepareOrder(Guid userId, Guid OrderId, decimal funds);
 }

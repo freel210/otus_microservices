@@ -1,21 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using NotificationService.Entities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using StorageService.ConfigOptions;
-using StorageService.Entities;
+using NotificationService.ConfigOptions;
 
-namespace StorageService.Contexts;
+namespace NotificationService.Contexts;
 
-public sealed class StorageDbContext : DbContext
+public sealed class NotificationDbContext : DbContext
 {
     private readonly string _connectionString;
 
-    public DbSet<Item> Items { get; set; } = null!;
-    public DbSet<ReservedItem> ReservedItems { get; set; } = null!;
+    public DbSet<Notification> Notifications { get; set; } = null!;
 
-    public StorageDbContext(DbContextOptions<StorageDbContext> options, IOptionsSnapshot<PostgresOptions> postgresOptions) : base(options)
+    public NotificationDbContext(DbContextOptions<NotificationDbContext> options, IOptionsSnapshot<PostgresOptions> postgresOptions) : base(options)
     {
-        string? dbUser = Environment.GetEnvironmentVariable("DB_STORAGE_USER");
-        string? dbPassword = Environment.GetEnvironmentVariable("DB_STORAGE_PASSWORD");
+        string? dbUser = Environment.GetEnvironmentVariable("DB_NOTIFICATION_USER");
+        string? dbPassword = Environment.GetEnvironmentVariable("DB_NOTIFICATION_PASSWORD");
 
         string? host = postgresOptions.Value.Host;
         int port = postgresOptions.Value.Port;

@@ -3,6 +3,9 @@ using DeliveriesService.Contexts;
 using DeliveriesService.DTO.Income;
 using DeliveriesService.Entities;
 using DeliveriesService.Helpers;
+using DeliveriesService.HostedServices;
+using DeliveriesService.Repositories;
+using DeliveriesService.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.ComponentModel.DataAnnotations;
@@ -32,6 +35,12 @@ builder.Services.AddDbContext<DeliveryDbContext>(options =>
     options.UseNpgsql();
 });
 
+builder.Services.AddHostedService<KafkaConsumerHostedService>();
+builder.Services.AddSingleton<IKafkaService, KafkaService>();
+
+builder.Services.AddSingleton<IDeliveryItemService, DeliveryItemService>();
+builder.Services.AddSingleton<IDeliveryRepository, DeliveryRepository>();
+
 var app = builder.Build();
 
 app.UseSwagger();
@@ -41,36 +50,6 @@ app.UseSwaggerUI(options =>
     options.DocumentTitle = $"{AssemblyInfo.ProgramNameVersion} manual";
 });
 app.UseDeveloperExceptionPage();
-
-app.MapPost("/add", async ([Required] DeliveryRequest? request, DeliveryDbContext context) =>
-{
-    Guid id = Guid.NewGuid();
-    Delivery entity = new Delivery()
-    {
-        Id = id,
-        Tid = request!.Tid,
-        Status = true
-    };
-
-    await context.Deliveries.AddAsync(entity);
-    context.SaveChanges();
-
-    return Results.Ok(new { Id = id });
-});
-
-app.MapPost("/cancel", async ([Required] DeliveryRequest? request, DeliveryDbContext context) =>
-{
-    var entity = await context.Deliveries.FirstOrDefaultAsync(x => x.Tid == request!.Tid);
-
-    if (entity != null)
-    {
-        entity.Status = false;
-        context.Deliveries.Update(entity);
-        context.SaveChanges();
-    }
-
-    return Results.Ok();
-});
 
 app.MapGet("/deliveries", async (DeliveryDbContext context) =>
 {

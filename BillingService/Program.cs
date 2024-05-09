@@ -33,7 +33,6 @@ builder.Services.AddDbContext<BillingDbContext>(options =>
 });
 
 builder.Services.AddHostedService<KafkaConsumerHostedService>();
-
 builder.Services.AddSingleton<IKafkaService, KafkaService>();
 
 builder.Services.AddSingleton<IAmountService, AmountService>();
