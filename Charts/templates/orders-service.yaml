@@ -1,12 +1,12 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: payments-service
+  name: orders-service
 spec:
   selector:
-    app: payments
+    app: notifiorderscation
   ports:
     - protocol: TCP
-      port: 5071
-      targetPort: 5071
+      port: 5074
+      targetPort: 5074
   type: LoadBalancer

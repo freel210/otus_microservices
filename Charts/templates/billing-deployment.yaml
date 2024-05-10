@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: payments-deployment
+  name: billing-deployment
   labels:
-    app: payments-deployment
+    app: billing-deployment
 spec:
   replicas: {{ .Values.replicaCount }}
   minReadySeconds: 10
@@ -11,29 +11,29 @@ spec:
     type: Recreate
   selector:
     matchLabels:
-      app: payments
+      app: billing
   template:
     metadata:
       labels:
-        app: payments
+        app: billing
     spec:
       containers:
-      - name: payments
-        image: {{ .Values.container.paymentsImage }}
+      - name: billing
+        image: {{ .Values.container.billingImage }}
         imagePullPolicy: Always
         ports:
-        - containerPort: 5071
+        - containerPort: 5076
         env:
         - name: PostgresOptions__Host
           value: pg-minikube-postgresql.default.svc.cluster.local
         - name: PostgresOptions__Database
-          value: paymentsdb10
-        - name: DB_PAYMENTS_USER
+          value: billingdb20
+        - name: DB_BILLING_USER
           valueFrom:
             secretKeyRef:
               name: demo-secret
               key: dbUser
-        - name: DB_PAYMENTS_PASSWORD
+        - name: DB_BILLING_PASSWORD
           valueFrom:
             secretKeyRef:
               name: demo-secret

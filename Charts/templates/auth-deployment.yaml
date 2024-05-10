@@ -27,7 +27,7 @@ spec:
         - name: PostgresOptions__Host
           value: pg-minikube-postgresql.default.svc.cluster.local
         - name: PostgresOptions__Database
-          value: authdb10
+          value: authdb20
         - name: DB_AUTH_USER
           valueFrom:
             secretKeyRef:

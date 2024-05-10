@@ -2,37 +2,32 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: kuber-ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      if ($request_uri ~* "^/gateway/swagger/index.html") {
+        rewrite ^/gateway/swagger/index.html /swagger/index.html permanent;
+      }
+      if ($request_uri ~* "^/users/swagger/index.html") {
+        rewrite ^/users/swagger/index.html /swagger/index.html permanent;
+      }
 spec:
   ingressClassName: nginx
   rules:
     - host: arch.homework
       http:
         paths:
-        - path: /health
-          pathType: Prefix
-          backend:
-            service:
-              name: demo-service
-              port:
-                number: 8080
-        - path: /swagger
+        - path: /gateway/swagger/index.html
           pathType: Prefix
           backend:
             service:
               name: gateway-service
               port:
                 number: 5168
-        - path: /user
+        - path: /users/swagger/index.html
           pathType: Prefix
           backend:
             service:
-              name: demo-service
-              port:
-                number: 8080
-        - path: /users
-          pathType: Prefix
-          backend:
-            service:
-              name: demo-service
+              name: users-service
               port:
                 number: 8080

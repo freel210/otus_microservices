@@ -27,25 +27,10 @@ spec:
         - name: ApiPointsOptions__AuthUrl
           value: http://auth-service.default.svc.cluster.local:5068
         - name: ApiPointsOptions__DemoUrl
-          value: http://demo-service.default.svc.cluster.local:8080
-        - name: ApiPointsOptions__PaymentsUrl
-          value: http://payments-service.default.svc.cluster.local:5071
-        - name: ApiPointsOptions__StorageUrl
-          value: http://storage-service.default.svc.cluster.local:5072
-        - name: ApiPointsOptions__DeliveryUrl
-          value: http://delivery-service.default.svc.cluster.local:5073
-        - name: PostgresOptions__Host
-          value: pg-minikube-postgresql.default.svc.cluster.local
-        - name: PostgresOptions__Database
-          value: gatewaydb10
-        - name: DB_GATEWAY_USER
-          valueFrom:
-            secretKeyRef:
-              name: demo-secret
-              key: dbUser
-        - name: DB_GATEWAY_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: demo-secret
-              key: dbPassword
+          value: http://users-service.default.svc.cluster.local:8000
+        - name: ApiPointsOptions__BillingUrl
+          value: http://billing-service.default.svc.cluster.local:5076
+        - name: ApiPointsOptions__OrdersUrl
+          value: http://orders-service.default.svc.cluster.local:5074
+
 
