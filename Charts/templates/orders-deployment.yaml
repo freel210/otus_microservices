@@ -20,10 +20,12 @@ spec:
       containers:
       - name: orders
         image: {{ .Values.container.ordersImage }}
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5074
         env:
+        - name: KafkaBootstrap
+          value: kafka.kafka-ca1:9092
         - name: PostgresOptions__Host
           value: pg-minikube-postgresql.default.svc.cluster.local
         - name: PostgresOptions__Database

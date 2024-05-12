@@ -4,7 +4,7 @@ metadata:
   name: orders-service
 spec:
   selector:
-    app: notifiorderscation
+    app: orders
   ports:
     - protocol: TCP
       port: 5074
